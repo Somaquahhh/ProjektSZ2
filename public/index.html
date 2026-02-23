@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <title>Csány Belépő, -Kikérő rendszer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.css" />
+  <script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
+
+  <link href="style.css" rel="stylesheet">
+  <script src="common_studio13.js"></script>
+  <link rel="icon" href="/favicon-32x32.png" type="image/png">
+</head>
+
+<body>
+
+  <!-- -------------------------- F E J L É C  é s  M E N Ü ----------------------------------------- -->
+  <nav id="navbar" class="navbar navbar-expand-sm fixed-top">
+    <!-- Menü gomb -->
+    <div class="nav-left-controls">
+      <button id="menu1_button"
+              type="button"
+              class="btn btn-outline-secondary bi bi-list dropdown-toggle"
+              title="katt: menü (F2)"></button>
+      <!-- Instagram gomb -->
+      <a class="btn btn-outline-light nav-social-btn bi bi-instagram"
+         href=https://www.instagram.com/zszc.csanylaszlotechnikum
+         target="_blank" title="Instagram"></a>
+         
+      <!-- Tiktok gomb -->
+      <a class="btn btn-outline-light nav-social-btn bi bi-tiktok"
+         href=https://www.tiktok.com/@zszccsanylaszlotechnikum
+         target="_blank" title="TikTok"></a>
+
+         <!-- Csány gomb -->
+      <a class="btn btn-outline-light nav-social-btn bi bi-mortarboard"
+      href="https://www.csany-zeg.hu/"
+      target="_blank" title="TikTok"></a>
+    </div>
+
+    <div id="szoveg_csoport">
+      <h1>Üdvözöljük az oldalon</h1>
+      <p>SZ2 Project</p>
+    </div>
+
+    <div class="input-group mx-auto"></div>
+
+    <span id="login1_user" class="navbar-text" title="no login">Login: Még senki....</span>
+    <button id="logout_direct_button" type="button" class="btn btn-outline-light ms-2">Kijelentkezés</button>
+  </nav>
+
+  <!-- -------------------------- M E N Ü  card  -------------------------------------- -->
+  <div class="card" id="menu1_card">
+    <div class="card-header"><h3>Menü</h3></div>
+    <div class="card-body">
+      <ul class="xmenu" id="menu1_ul"></ul>
+    </div>
+    <div class="card-footer"><i>© Sz2 Projekt</i></div>
+  </div>
+
+  <!-- -------------------------- L A Y O U T  (left / main / right) -------------------------- -->
+  <div id="layoutGrid" class="layout-grid">
+
+    <!-- BAL OLDAL -->
+    <aside id="sidebarLeft" class="side-panel">
+      <div class="side-card">
+        <div class="side-title">Profil</div>
+        <div class="side-row"><span class="muted">Név</span><b id="sb_name">-</b></div>
+        <div class="side-row"><span class="muted">Szerep</span><b id="sb_role">-</b></div>
+        <div class="side-row"><span class="muted">Email</span><span id="sb_email">-</span></div>
+        <div class="side-row"><span class="muted">OM</span><span id="sb_om">-</span></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Idő</div>
+        <div class="side-row"><span class="muted">Dátum</span><b id="sb_date">-</b></div>
+        <div class="side-row"><span class="muted">Óra</span><b id="sb_time">-</b></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Gyors műveletek</div>
+
+        <!-- ✅ Ezt tölti a common_studio13.js a menüből role alapján -->
+        <div class="side-actions" id="sb_quick"></div>
+
+        <div class="muted small" style="margin-top:10px;">
+          Tipp: a menü továbbra is F2 vagy a bal felső gomb.
+        </div>
+      </div>
+    </aside>
+
+    <!-- KÖZÉP: MAIN -->
+    <main id="main1" class="main main-panel container-fluid py-4">
+      <div class="row align-items-center">
+        <div class="elso">
+          <div class="col-md-6 text-start">
+            <h1 class="display-4 fw-bold mb-4 text-success">
+              Az SZ2 Projekt kezdőlapjára érkezett
+            </h1>
+            <p class="lead mb-4">
+              Az iskolai tanárok, diákok és vezetőség részére készült bejelentkeztető oldal. <br>
+              Kérjük, jelentkezzen be a jobb-fenti gomb segítségével, hogy elérje a menüpont további felületeit.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- JOBB OLDAL -->
+    <aside id="sidebarRight" class="side-panel">
+      <div class="side-card">
+        <div class="side-title">Hol vagy?</div>
+        <div class="side-big" id="sb_page">Studio 13</div>
+        <div class="muted small" id="sb_page_hint">
+          Használd a menüt a funkciók eléréséhez. A bal panelen gyorsgombok vannak.
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Hasznos tippek</div>
+        <ul class="side-list" id="sb_tips">
+          <li>Adatkeresőben név/OM alapján gyorsan szűrhetsz.</li>
+          <li>RFID be oldalon a “Sulikezdés” beállításával számol késést.</li>
+          <li>Kikérő: a PDF csak elfogadás után tölthető le.</li>
+        </ul>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Állapot</div>
+        <div class="side-row"><span class="muted">Bejelentkezve</span><b id="sb_logged">-</b></div>
+
+        <!-- ✅ common_studio13.js ezt frissíti másodpercenként -->
+        <div class="side-row">
+          <span class="muted" id="sb_session_label">Bejelentkezve óta</span>
+          <b id="sb_session_age">-</b>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+
+  <div class="loader" id="loader1"><img src="" alt="loader"/></div>
+
+  <script>
+    // ---- Bal oldali óra/dátum (a common nem kezeli) ----
+    (function () {
+      function pad2(n) { return String(n).padStart(2, "0"); }
+      function tickClock() {
+        const now = new Date();
+        const d = `${now.getFullYear()}.${pad2(now.getMonth() + 1)}.${pad2(now.getDate())}.`;
+        const t = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+        const elD = document.getElementById("sb_date");
+        const elT = document.getElementById("sb_time");
+        if (elD) elD.textContent = d;
+        if (elT) elT.textContent = t;
+      }
+      tickClock();
+      setInterval(tickClock, 1000);
+
+      // Hol vagy? (jobb panel cím)
+      const elP = document.getElementById("sb_page");
+      if (elP) elP.textContent = document.title || "Studio 13";
+    })();
+  </script>
+
+  <script>
+    $(document).ready(function () {
+      let bejelentkezett = false;
+
+      async function updateUIBySession() {
+        try {
+          const r = await fetch("/session", { cache: "no-store", credentials: "include" });
+          const response = await r.json();
+          bejelentkezett = !!response.bejelentkezett;
+
+          if (bejelentkezett) {
+            $("#login1_user").html(response.user.CSOPORT + ":<br><b>" + response.user.NEV + "</b>");
+            $("#menu1_button").prop("disabled", false);
+
+            // ✅ ha még nincs beállítva, innen indítjuk a timer-t (common is tudja)
+            if (!localStorage.getItem("login_ts")) {
+              localStorage.setItem("login_ts", String(Date.now()));
+            }
+          } else {
+            window.location.href = "login.html";
+            return;
+          }
+
+          // menü kattintás bind
+          $("li.xmenu").off("click").on("click", function () {
+            var id = $(this).attr("id");
+            var i = id.substring(6);
+            var tip = menü_json[i].tip;
+            var url = menü_json[i].url;
+
+            if (tip == 0) {
+              ajax_get(url, "#main1", 0, true);
+            } else if (tip == 1) {
+              window.open(url, "").focus();
+            } else if (tip == 2) {
+              window.open(url, "_blank").focus();
+            } else if (tip == 3) {
+              window.location.href = url;
+            }
+            $("#menu1_card").fadeToggle(300);
+          });
+
+        } catch (e) {
+          window.location.href = "login.html";
+        }
+      }
+
+      async function doLogout() {
+        myQuestion({ text: "Kijelentkezés megerősítése...?" });
+
+        $("#myQuestion").off("click", ".ok").on("click", ".ok", async function () {
+          try {
+            const res = await fetch("/logout", { method: "POST", credentials: "include" });
+            const txt = await res.json().catch(() => "Sikeres kijelentkezés.");
+            mySend({ text: String(txt), tip: "info", mp: 3 });
+          } catch (e) {
+            mySend({ text: "Hiba a kijelentkezés során.", tip: "danger", mp: 3 });
+          } finally {
+            // ✅ timer nullázás
+            localStorage.removeItem("login_ts");
+            window.location.href = "login.html";
+          }
+        });
+      }
+
+      $("#logout_direct_button").on("click", doLogout);
+      $("#menu1_button").on("click", function () {
+        $("#menu1_card").fadeToggle(300);
+      });
+      $(document).on("keydown", function (e) {
+  if (e.keyCode === 113) { // F2
+    e.preventDefault();
+
+    // Ha már fent vagy, azonnal nyithat/ zárhat
+    if (window.scrollY <= 5) {
+      $("#menu1_card").fadeToggle(300);
+      return;
+    }
+
+    // 1) felgörgetés a tetejére
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+    // 2) amikor felért (vagy kis késleltetéssel), nyitjuk a menüt
+    setTimeout(function () {
+      // opcionális: biztosan legyen látható (ne toggoljon)
+      // $("#menu1_card").stop(true, true).fadeIn(300);
+
+      $("#menu1_card").stop(true, true).fadeIn(300);
+    }, 250);
+  }
+});
+      // menü kirajzolás
+      $("#menu1_ul").html(menu_generator());
+
+      // session UI frissítés
+      updateUIBySession();
+    });
+  </script>
+
+</body>
+</html>

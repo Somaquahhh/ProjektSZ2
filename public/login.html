@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Bejelentkezés - Studio 13</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <link href="style.css" rel="stylesheet">
+  <script src="common_studio13.js"></script>
+  <link rel="icon" href="/favicon-32x32.png" type="image/png">
+
+  <script>
+    function clearLoginForm() {
+      const pass = document.getElementById('user1_passwd_field');
+      if (pass) pass.value = '';
+    }
+
+    // Normál betöltés
+    window.addEventListener('DOMContentLoaded', clearLoginForm);
+
+    // Back/Forward cache eset
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) clearLoginForm();
+    });
+  </script>
+</head>
+
+<body class="login-page">
+  <div class="app-wrap d-flex align-items-center justify-content-center" style="min-height:100vh;">
+    <div class="position-absolute" style="top:16px; right:16px;">
+    </div>
+
+    <div class="app-card" style="min-width:320px; max-width:420px; width:100%;">
+      <h3 class="mb-3 text-center">Bejelentkezés</h3>
+
+      <form id="user1_form" autocomplete="off">
+        <div class="mb-3">
+          <label for="user1_login_field" class="form-label">Felhasználónév / email</label>
+          <input type="text" class="form-control" id="user1_login_field" name="user1_login_field" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="user1_passwd_field" class="form-label">Jelszó</label>
+          <input type="password" class="form-control" id="user1_passwd_field" name="user1_passwd_field" required>
+        </div>
+
+        <div class="mb-3 text-danger" id="errorBox" style="display:none;"></div>
+
+        <button type="submit" class="btn btn-primary w-100">Belépés</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    // Ha már be van jelentkezve, ne lássa a login oldalt, hanem menjen az indexre
+    async function checkSession() {
+      try {
+        const res = await fetch('/session', { credentials: 'include', cache: 'no-store' });
+        const data = await res.json();
+        if (data.bejelentkezett) {
+          window.location.href = '/index';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    checkSession();
+
+    document.getElementById('user1_form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user: form.user1_login_field.value,
+            psw:  form.user1_passwd_field.value
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.count === 1) {
+          // Sikeres login → megyünk a védett indexre
+          window.location.href = '/index';
+        } else {
+          document.getElementById('errorBox').style.display = 'block';
+          document.getElementById('errorBox').innerHTML = 'Hibás felhasználónév vagy jelszó.';
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('errorBox').style.display = 'block';
+        document.getElementById('errorBox').innerHTML = 'Hiba történt a bejelentkezés során.';
+      }
+    });
+  </script>
+</body>
+</html>

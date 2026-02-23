@@ -1,0 +1,805 @@
+header {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  min-height: calc(100vh - 66px); /* footer magassag (46px) + padding (10px felül + 10px alul) */
+}
+
+body { 
+  font-family: "Open Sans", sans-serif;
+  height: 100%;
+}
+
+input { font-family: Verdana, Tahoma; }
+
+#szoveg_csoport h1 {
+  margin-top: 10px; 
+}
+
+#szoveg_csoport {
+  position: absolute;       /* függetlenedik a navbar flexétől */
+  left: 50%;                /* vízszintesen középen */
+  top: 50%;                 /* függőlegesen a navbar közepén */
+  transform: translate(-50%, -50%); /* pontos középre igazítás */
+  
+  display: flex;
+  flex-direction: column;   /* egymás alá */
+  align-items: center;      /* vízszintesen középre */
+  text-align: center;       /* szöveg középre */
+  color: var(--text-main);
+}
+
+#navbar {
+  padding: 20px;
+  background: linear-gradient(
+    to bottom, 
+    rgba(0, 0, 0, 0.55),
+    rgba(26, 40, 236, 0.06)
+  );
+  position: relative;
+}
+
+#menu1_button {
+  margin-left: 1.5%;
+}
+
+#login1_user {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4px;
+  margin-right: 5px;
+}
+
+#menu1_card {
+  margin-left: 1.5%;
+  position: fixed;
+  top: 13%;
+  width: auto;
+  z-index: 1000;
+  overflow: auto;
+  overflow-y: auto;
+  display: none;              /* alapban rejtett */
+  box-shadow: 11px 12px 21px 1px rgba(0,0,0,0.79);
+}
+
+ul.xmenu {
+  list-style-type: none;
+  line-height: 150%;
+  font-family: Verdana, tahoma;
+  color: var(--text-main);
+  letter-spacing: 1px;
+  font-size: 16px;
+  padding: 0;
+}
+
+li.xmenu {  
+  margin: 1px;
+  padding: 10px;
+}
+
+li.xmenu:hover{
+  cursor: pointer;
+  color: var(--text-main);
+  background-color: rgba(59,130,246,0.25);
+} 
+
+li.xmenu img  { padding-right: 16px; }       
+
+#footer {
+  bottom: 0;
+  position: relative;
+  padding: 10px;
+  height: 46px;
+  text-align: center;
+  color: var(--text-muted);
+  letter-spacing: 1px;  
+}
+
+#footer a { color: var(--text-muted); text-decoration: none; }
+
+div.button  { 
+  box-sizing: border-box;
+  float:left;
+  display: table-cell;
+  background-repeat: no-repeat;
+  background-position: 50% 90%;
+  background-color: rgba(255,255,255,0.10);
+  width: 80px;
+  height: 64px;
+  margin: 4px;
+  padding: 3px;
+  border-radius: 10px; 
+  cursor: pointer;  
+  vertical-align: bottom;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--text-main);
+} 
+
+div.loader  {                   
+  display: none;              /* alapban rejtett */
+  z-index: 9998;     
+  margin: auto;
+  position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+  width: 134px;
+  height:134px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.35);
+}
+
+/*--------------------------------------------------------------
+# main_title Section
+--------------------------------------------------------------*/
+#main_title {
+  margin-left: 40px;
+  width: 100%;
+  height: 80vh;
+  background: rgba(30,41,59,0.6);
+  letter-spacing: 1px;
+}
+
+#main_title .container { padding-top: 72px; }
+
+#main_title h1 {
+  margin: 0 0 10px 0;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  color: var(--text-main);
+}
+
+#main_title h2 {
+  color: var(--text-muted);
+  margin-bottom: 50px;
+  font-size: 24px;
+}
+
+#main_title .btn-get-started {
+  font-family: "Jost", sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  display: inline-block;
+  padding: 10px 28px 11px 28px;
+  border-radius: 50px;
+  margin: 10px 0 0 0;
+  color: var(--text-main);
+  background: rgba(59,130,246,0.25);
+  border: 1px solid rgba(59,130,246,0.35);
+  cursor: pointer;
+}
+
+#main_title .btn-get-started:hover { background: rgba(59,130,246,0.35); }
+
+@media (max-width: 991px) {
+  #main_title                     { height: 100vh; text-align: center; }
+  #main_title .main_title-img     { text-align: center; }
+  #main_title .main_title-img img { width: 50%; }
+}
+
+@media (max-width: 768px) {
+  #main_title h1 { font-size: 28px; line-height: 36px; }
+  #main_title h2 { font-size: 18px; line-height: 24px; margin-bottom: 30px; }
+  #main_title .main_title-img img { width: 70%; }
+}
+
+@media (max-width: 575px) {
+  #main_title .main_title-img img { width: 80%; }
+  #main_title .btn-get-started { font-size: 16px; padding: 10px 24px 11px 24px; }
+}
+
+label {
+  display: block;
+  margin-top: 3%;
+}
+
+.kartya {
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 12px;
+  margin-top: 18px;
+  background: rgba(0,0,0,0.25);
+  color: var(--text-main);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+button {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.10);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+button:hover{
+  background: rgba(255,255,255,0.16);
+}
+
+@media (max-width: 576px) {
+  body { padding: 5%; }
+
+  .kartya { padding: 8px; }
+  button { padding: 6px 10px; }
+}
+
+.elso { margin-top: 5%; }
+
+/* =========================================================
+   EGYSÉGES THEME RENDSZER
+   - alap: sötét (sötétkék)
+   - világos: body.theme-light
+   ========================================================= */
+
+/* ===== ALAP (SÖTÉT) ===== */
+:root{
+  --bg-main: #0b1220;          /* extra sötét kék */
+  --bg-overlay: rgba(9, 15, 30, 0.78); /* kép sötétítő overlay */
+  --panel: rgba(15, 23, 42, 0.58);
+  --card: rgba(17, 28, 52, 0.52);
+
+  --text-main: #e5e7eb;
+  --text-muted: #a3b0c2;
+
+  --accent: #3b82f6;
+  --border: rgba(148, 163, 184, 0.25);
+
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --radius: 16px;
+}
+
+/* háttérkép + overlay (SÖTÉT ALAP) */
+body{
+  min-height: 100vh;
+  color: var(--text-main);
+  background-color: var(--bg-main);
+  background-image:
+    linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+    url("image/kep1.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* =========================
+   3 oszlopos layout (bal / közép / jobb)
+   ========================= */
+.layout-grid{
+  display: grid;
+  grid-template-columns: 320px minmax(520px, 1fr) 320px;
+  gap: 18px;
+  padding-top: 90px; /* navbar miatt */
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-bottom: 18px;
+}
+
+.main-panel{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  min-height: calc(100vh - 150px);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+
+.side-panel{
+  position: sticky;
+  top: 96px;
+  height: calc(100vh - 120px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.side-card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 14px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+
+.side-title{
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  opacity: 0.95;
+}
+
+.side-row{
+  display:flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+.side-row:last-child{ border-bottom:none; }
+
+.muted{ opacity: 0.8; }
+.small{ font-size: 0.9em; }
+
+.side-big{
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.side-actions{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.side-btn{
+  display:block;
+  text-decoration:none;
+  color: var(--text-main);
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.side-btn:hover{
+  background: rgba(255,255,255,0.14);
+  color: var(--text-main);
+}
+
+.side-list{
+  margin: 0;
+  padding-left: 18px;
+}
+.side-list li{
+  margin: 8px 0;
+  opacity: 0.92;
+}
+
+/* Reszponzív: tablet/mobil -> oldalsávok eltűnnek */
+@media (max-width: 1200px){
+  .layout-grid{
+    grid-template-columns: 1fr;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .side-panel{ display:none; }
+  .main-panel{ padding: 16px; }
+}
+
+/* =========================
+   Theme toggle button
+   ========================= */
+   .theme-toggle-btn{
+    position: static;
+    margin: 0 10px;
+    z-index: auto;
+  
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.35);
+    color: var(--text-main);
+    border-radius: 12px;
+    padding: 8px 10px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+.theme-toggle-btn:hover{
+  background: rgba(0,0,0,0.50);
+}
+
+/* =========================
+   VILÁGOS TÉMA (halvány, nem vakító)
+   Aktiválás: body.theme-light
+   ========================= */
+body.theme-light{
+  --bg-main: #eef2f7;          /* halvány */
+  --bg-overlay: rgba(255,255,255,0.0); /* nincs overlay */
+  --panel: rgba(255,255,255,0.78);
+  --card: rgba(255,255,255,0.88);
+
+  --text-main: #0f172a;
+  --text-muted: #42526b;
+
+  --border: rgba(15, 23, 42, 0.12);
+  --shadow: 0 10px 26px rgba(2, 6, 23, 0.10);
+
+  background-image: none !important;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
+/* lightban navbar olvasható */
+body.theme-light #navbar{
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.86),
+    rgba(241,245,249,0.55)
+  ) !important;
+}
+
+body.theme-light #szoveg_csoport,
+body.theme-light #login1_user{
+  color: var(--text-main) !important;
+}
+
+/* lightban menü hover ne legyen túl sötét */
+body.theme-light li.xmenu:hover{
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+
+/* =========================================================
+   KONTRASZT + OLVASHATÓSÁG PATCH (SÖTÉT TÉMÁHOZ)
+   Tedd a style.css LEGALJÁRA
+   ========================================================= */
+
+/* 1) Oldalsó kártyák legyenek “masszívabbak” */
+.side-card,
+.main-panel{
+  background: rgba(9, 16, 32, 0.72) !important;     /* sötétebb, jobban elválik */
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 16px 45px rgba(0,0,0,0.55) !important;
+}
+
+/* 2) Jobb oldali tippek szöveg legyen erősebb */
+.side-card,
+.side-card *{
+  color: rgba(229,231,235,0.95) !important;
+}
+.side-card .muted{
+  opacity: 0.9 !important;
+}
+
+/* 3) Bal “Menü” panel (a fehér doboz) sötétítése */
+#menu1_card{
+  background: rgba(9, 16, 32, 0.92) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.65) !important;
+}
+
+/* Menü lista (ne maradjon “fehér lapon fehér szöveg”) */
+#menu1_card ul.xmenu,
+#menu1_card li.xmenu{
+  color: rgba(229,231,235,0.95) !important;
+}
+#menu1_card li.xmenu:hover{
+  background: rgba(59,130,246,0.22) !important;
+  color: #fff !important;
+}
+
+/* 4) Gyors műveletek gombok (bal alul) legyenek jobban láthatók */
+div.button{
+  background-color: rgba(9, 16, 32, 0.70) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  color: rgba(229,231,235,0.95) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45) !important;
+}
+div.button:hover{
+  background-color: rgba(59,130,246,0.18) !important;
+  border-color: rgba(59,130,246,0.40) !important;
+}
+
+/* 5) Táblázatok: fehér helyett “dark-friendly” fejlécek + kontraszt */
+table{
+  background: rgba(255,255,255,0.92);
+}
+body:not(.theme-light) table{
+  background: rgba(9,16,32,0.35) !important;
+  color: rgba(229,231,235,0.95) !important;
+}
+body:not(.theme-light) table th{
+  background: rgba(9,16,32,0.65) !important;
+  color: rgba(229,231,235,0.98) !important;
+}
+body:not(.theme-light) table td{
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+/* 6) MODAL / MEGERŐSÍTÉS ablak (általános + jQuery UI) */
+.modal,
+.modal-dialog,
+.modal-content,
+.ui-dialog,
+.ui-dialog-content{
+  color: rgba(229,231,235,0.95) !important;
+}
+
+body:not(.theme-light) .modal-content{
+  background: rgba(9, 16, 32, 0.96) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 22px 80px rgba(0,0,0,0.70) !important;
+}
+
+/* jQuery UI titlebar (Megerősítés fejléc) */
+body:not(.theme-light) .ui-dialog .ui-dialog-titlebar{
+  background: rgba(9, 16, 32, 0.96) !important;
+  border: 0 !important;
+  color: rgba(229,231,235,0.98) !important;
+}
+
+/* Modal gombok */
+body:not(.theme-light) .modal button,
+body:not(.theme-light) .ui-dialog button,
+body:not(.theme-light) .ui-dialog .ui-button{
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  color: rgba(229,231,235,0.95) !important;
+  border-radius: 12px !important;
+  padding: 8px 12px !important;
+}
+body:not(.theme-light) .modal button:hover,
+body:not(.theme-light) .ui-dialog button:hover,
+body:not(.theme-light) .ui-dialog .ui-button:hover{
+  background: rgba(59,130,246,0.18) !important;
+  border-color: rgba(59,130,246,0.35) !important;
+}
+
+/* 7) Login mezők: legyenek sötétben is szépek + olvashatók */
+body:not(.theme-light) input,
+body:not(.theme-light) select,
+body:not(.theme-light) textarea{
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  color: rgba(229,231,235,0.95) !important;
+}
+body:not(.theme-light) input::placeholder{
+  color: rgba(229,231,235,0.55) !important;
+}
+
+
+/* =========================
+   TÁBLÁZAT SZÉPÍTÉS (soft white + kártya hatás)
+   ========================= */
+
+/* táblázatot körülvevő “kártya” érzés */
+table{
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* SÖTÉT témában: ne vakító fehér legyen, hanem “soft” */
+body:not(.theme-light) table{
+  background: rgba(255,255,255,0.92) !important; /* puha fehér */
+  color: #0f172a !important;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.45) !important;
+  border: 1px solid rgba(15,23,42,0.10) !important;
+}
+
+/* fejléc */
+body:not(.theme-light) table thead th,
+body:not(.theme-light) table th{
+  background: rgba(241,245,249,1) !important; /* nagyon halvány kékesszürke */
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid rgba(15,23,42,0.12) !important;
+}
+
+/* cellák */
+body:not(.theme-light) table td{
+  border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+}
+
+/* zebra csíkozás */
+body:not(.theme-light) table tbody tr:nth-child(even){
+  background: rgba(15,23,42,0.03) !important;
+}
+
+/* sor hover */
+body:not(.theme-light) table tbody tr:hover{
+  background: rgba(37,99,235,0.08) !important;
+}
+
+
+
+
+/* =========================
+   BEJELENTKEZÉS INPUTOK (sötétben jobban látszódjon)
+   ========================= */
+
+   body:not(.theme-light) input,
+   body:not(.theme-light) select,
+   body:not(.theme-light) textarea{
+     background: rgba(9,16,32,0.85) !important;      /* tömör sötét háttér */
+     border: 1px solid rgba(255,255,255,0.22) !important;
+     color: rgba(229,231,235,0.96) !important;
+     box-shadow: 0 10px 26px rgba(0,0,0,0.45) !important;
+   }
+   
+   body:not(.theme-light) input:focus,
+   body:not(.theme-light) select:focus,
+   body:not(.theme-light) textarea:focus{
+     outline: none !important;
+     border-color: rgba(59,130,246,0.55) !important;
+     box-shadow: 0 0 0 4px rgba(59,130,246,0.18), 0 12px 30px rgba(0,0,0,0.45) !important;
+   }
+   
+   body:not(.theme-light) input::placeholder{
+     color: rgba(229,231,235,0.60) !important;
+   }
+
+   
+
+   /* =========================
+   MENÜ LENYÍLÓ: TÖMÖR (ne legyen átlátszó)
+   ========================= */
+
+#menu1_card{
+  background: #0b1220 !important;                 /* tömör sötétkék */
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 18px 65px rgba(0,0,0,0.70) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Menün belüli elemek legyenek jól olvashatók */
+#menu1_card ul.xmenu,
+#menu1_card li.xmenu{
+  color: rgba(229,231,235,0.96) !important;
+}
+#menu1_card li.xmenu:hover{
+  background: rgba(59,130,246,0.22) !important;
+  color: #fff !important;
+}
+
+
+
+/* =========================================================
+   LOGIN OLDAL – KIEMELT BEJELENTKEZŐ DOBOZ
+   HTML-hez igazítva (app-card)
+   ========================================================= */
+
+/* csak a login oldalon (biztonságosabb) */
+body.login-page .app-card{
+  background: rgba(9, 16, 32, 0.88) !important;   /* tömör sötét */
+  border: 1px solid rgba(255,255,255,0.20) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 28px 90px rgba(0,0,0,0.70) !important;
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  padding: 28px 30px !important;
+}
+
+/* cím */
+body.login-page .app-card h3{
+  color: rgba(229,231,235,0.98) !important;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  margin-bottom: 22px !important;
+}
+
+/* label */
+body.login-page .form-label{
+  color: rgba(229,231,235,0.85) !important;
+  font-size: 0.9rem;
+}
+
+/* input mezők */
+body.login-page .form-control{
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  color: rgba(229,231,235,0.95) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
+}
+
+/* placeholder */
+body.login-page .form-control::placeholder{
+  color: rgba(229,231,235,0.55) !important;
+}
+
+/* fókusz */
+body.login-page .form-control:focus{
+  outline: none !important;
+  border-color: rgba(59,130,246,0.65) !important;
+  box-shadow:
+    0 0 0 4px rgba(59,130,246,0.18),
+    inset 0 1px 2px rgba(0,0,0,0.35) !important;
+}
+
+/* hibaüzenet */
+body.login-page #errorBox{
+  background: rgba(220,38,38,0.12);
+  border: 1px solid rgba(220,38,38,0.35);
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+/* belépés gomb */
+body.login-page .btn-primary{
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 700;
+  padding: 12px !important;
+  box-shadow: 0 14px 34px rgba(37,99,235,0.45) !important;
+}
+
+body.login-page .btn-primary:hover{
+  filter: brightness(1.08);
+}
+
+/* theme toggle gomb ne legyen túl világos */
+body.login-page #themeToggle{
+  background: rgba(9,16,32,0.65);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(229,231,235,0.95);
+}
+body.login-page #themeToggle:hover{
+  background: rgba(9,16,32,0.85);
+}
+
+
+/* =========================
+   LOGIN CARD – MÉRET FINOMHANGOLÁS
+   ========================= */
+
+   body.login-page .app-card{
+    max-width: 480px !important;   /* 420 -> 480 */
+    padding: 36px 38px !important; /* több levegő */
+  }
+  
+  /* cím legyen hangsúlyosabb */
+  body.login-page .app-card h3{
+    font-size: 1.6rem !important;
+    margin-bottom: 26px !important;
+  }
+  
+  /* input mezők picit magasabbak */
+  body.login-page .form-control{
+    padding: 12px 14px !important;
+    font-size: 1rem;
+  }
+  
+  /* gomb legyen “komolyabb” */
+  body.login-page .btn-primary{
+    padding: 14px !important;
+    font-size: 1.05rem;
+    margin-top: 6px;
+  }
+
+  .nav-left-controls{
+    display: flex;
+    align-items: center;
+  }
+  
+  /* nagyobb távolság a menü és a social gombok között */
+  #menu1_button{
+    margin-right: 100px;
+  }
+  
+  /* kisebb távolság a social gombok között */
+  .nav-social-btn{
+    margin-right: 35px;
+  }
+  
+  /* az utolsón ne legyen extra hely */
+  .nav-social-btn:last-child{
+    margin-right: 0;
+  }

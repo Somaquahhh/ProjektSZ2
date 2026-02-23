@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adatkereső</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="common_studio13.js"></script>
+
+  <style>
+    /* Modal tartalom light módban is olvasható legyen */
+    #userModal .modal-content { color: #111; }
+  </style>
+  <link rel="icon" href="/favicon-32x32.png" type="image/png">
+</head>
+
+<body>
+    <div class="app-wrap">
+  <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+    <h2 class="m-0">Keresés adatmező alapján</h2>
+  </div>
+
+  <div class="app-card">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-3">
+        <label class="form-label mb-1">Mező</label>
+        <select id="search-field" class="form-select">
+          <option value="NEV">Név</option>
+          <option value="OM">OM</option>
+          <option value="CSOPORT">Csoport</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-9">
+        <label class="form-label mb-1">Keresés</label>
+        <input type="search" id="search-input" class="form-control" placeholder="Írd be a keresett értéket...">
+      </div>
+    </div>
+
+    <div class="app-panel app-scroll mt-3">
+      <table class="table app-table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>OM</th>
+            <th>Név</th>
+            <th>Email</th>
+            <th>Csoport</th>
+          </tr>
+        </thead>
+        <tbody id="D2">
+          <tr><td colspan="4">Betöltés...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal (Bootstrap már be van töltve indexből) -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="color:#111;">
+      <div class="modal-header">
+        <h5 class="modal-title">Felhasználó adatai</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+      </div>
+
+      <div class="modal-body">
+        <ul class="list-group">
+          <li class="list-group-item"><strong>OM:</strong> <span id="modal-om"></span></li>
+          <li class="list-group-item"><strong>Név:</strong> <span id="modal-nev"></span></li>
+          <li class="list-group-item"><strong>Email:</strong> <span id="modal-email"></span></li>
+          <li class="list-group-item"><strong>Csoport:</strong> <span id="modal-csoport"></span></li>
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ✅ FONTOS: ajax fragmentnél mindig IIFE, ne legyen globális szemetelés
+
+  async function ajax_post(urlsor, tipus) {
+    try {
+      const data = await $.ajax({
+        url: urlsor,
+        type: "post",
+        async: true,
+        cache: false,
+        dataType: tipus === 0 ? "html" : "json"
+      });
+      return data;
+    } catch (jqXHR) {
+      if (jqXHR && (jqXHR.status === 401 || jqXHR.status === 403)) {
+        window.location.replace("/login.html");
+        return null;
+      }
+      console.error(jqXHR?.responseText || jqXHR);
+      return null;
+    }
+  }
+
+  function showModal(nev, email, om, csoport) {
+  // Fordítás magyarra (javított: Students is)
+  const c = (csoport || "").toLowerCase();
+  if (c === "teachers") csoport = "Tanár";
+  else if (c === "students") csoport = "Diák";
+  else if (c === "boss" || c === "bosses") csoport = "Vezető";
+
+  $("#modal-om").text(om);
+  $("#modal-nev").text(nev);
+  $("#modal-email").text(email);
+  $("#modal-csoport").text(csoport);
+
+  const modalEl = document.getElementById("userModal");
+  if (!modalEl) return;
+
+  // ✅ FONTOS: ha AJAX-szal töltöd be az oldalt (#main1-be),
+  // a modal a main-ben marad -> backdrop feljön, modal eltűnhet.
+  // Tedd át BODY-ba megnyitás előtt:
+  if (modalEl.parentElement !== document.body) {
+    document.body.appendChild(modalEl);
+  }
+
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modal.show();
+}
+
+
+  // ✅ frissítés
+  (async function init() {
+    const r_json = await ajax_post("/asd", 1);
+
+    if (!r_json || !r_json.rows) {
+      $("#D2").html("<tr><td colspan='4'>Nincs adat / nincs jogosultság</td></tr>");
+      return;
+    }
+
+    function frissitTabla(keresoSzoveg, mezoNev) {
+      let s = "";
+      keresoSzoveg = (keresoSzoveg || "").toLowerCase().trim();
+
+      for (let i = 0; i < r_json.rows.length; i++) {
+        const val = (r_json.rows[i][mezoNev] ?? "").toString().toLowerCase();
+        if (val.includes(keresoSzoveg)) {
+          const u = r_json.rows[i];
+          s += `
+            <tr style="cursor:pointer">
+              <td>${u.OM ?? ""}</td>
+              <td>${u.NEV ?? ""}</td>
+              <td>${u.EMAIL ?? ""}</td>
+              <td>${u.CSOPORT ?? ""}</td>
+            </tr>
+          `;
+        }
+      }
+
+      $("#D2").html(s || "<tr><td colspan='4'>Nincs találat</td></tr>");
+
+      // ✅ click bind a frissített sorokra (delegálva)
+      $("#D2 tr").off("click").on("click", function () {
+        const idx = $(this).index();
+        const filtered = [];
+        const q = ($("#search-input").val() || "").toLowerCase().trim();
+        const field = $("#search-field").val();
+
+        for (let i = 0; i < r_json.rows.length; i++) {
+          const val = (r_json.rows[i][field] ?? "").toString().toLowerCase();
+          if (val.includes(q)) filtered.push(r_json.rows[i]);
+        }
+
+        const user = filtered[idx];
+        if (user) showModal(user.NEV, user.EMAIL, user.OM, user.CSOPORT);
+      });
+    }
+
+    // init
+    frissitTabla("", "NEV");
+
+    $("#search-input, #search-field").off("input change").on("input change", function () {
+      frissitTabla($("#search-input").val(), $("#search-field").val());
+    });
+  })();
+})();
+</script>
+</body>
+</html>

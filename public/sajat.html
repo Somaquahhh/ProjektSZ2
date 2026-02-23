@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saját adatok</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="common_studio13.js"></script>
+  <link rel="icon" href="/favicon-32x32.png" type="image/png">
+</head>
+
+<body>
+  <div class="app-wrap">
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+      <h2 class="m-0">Saját adatok</h2>
+    </div>
+
+    <div class="app-card mb-3">
+      <div class="row g-2">
+        <div class="col-12 col-md-4">
+          <div class="p-2 rounded" style="background: rgba(0,0,0,.04);">
+            <div class="fw-bold">Név</div>
+            <div id="nev">-</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="p-2 rounded" style="background: rgba(0,0,0,.04);">
+            <div class="fw-bold">Email</div>
+            <div id="email">-</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="p-2 rounded" style="background: rgba(0,0,0,.04);">
+            <div class="fw-bold">OM szám</div>
+            <div id="om">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="d-flex align-items-center justify-content-between gap-2">
+        <h4 class="m-0">Belépések / Kilépések</h4>
+        <button id="frissitBtn" class="btn btn-secondary btn-sm" type="button">Frissítés</button>
+      </div>
+
+      <div class="app-panel app-scroll mt-3">
+        <table class="table app-table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Dátum / idő</th>
+              <th>Irány</th>
+              <th>RFID</th>
+            </tr>
+          </thead>
+          <tbody id="kibe_body">
+            <tr><td colspan="3">Betöltés...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    (function () {
+
+      function formatIrany(i) {
+        if (i === "in") return "be";
+        if (i === "out") return "ki";
+        return i || "";
+      }
+
+      async function loadSessionAndData() {
+        try {
+          // ---- SESSION ----
+          const res = await fetch("/session", { credentials: "include", cache: "no-store" });
+          const text = await res.text();
+
+          if (!res.ok) {
+            window.location.href = "login.html";
+            return;
+          }
+
+          let session;
+          try {
+            session = JSON.parse(text);
+          } catch {
+            window.location.href = "login.html";
+            return;
+          }
+
+          if (!session.bejelentkezett || !session.user) {
+            window.location.href = "login.html";
+            return;
+          }
+
+          document.getElementById("nev").textContent = session.user.NEV ?? "-";
+          document.getElementById("email").textContent = session.user.EMAIL ?? "-";
+          document.getElementById("om").textContent = session.user.OM ?? "-";
+
+          // ---- KIBE LEKÉRÉS ----
+          const body = document.getElementById("kibe_body");
+          body.innerHTML = `<tr><td colspan="3">Betöltés...</td></tr>`;
+
+          const kibeRes = await fetch("/api/my/kibe", { credentials: "include", cache: "no-store" });
+
+          if (!kibeRes.ok) {
+            body.innerHTML = `<tr><td colspan="3">Hiba a lista betöltésekor (${kibeRes.status})</td></tr>`;
+            return;
+          }
+
+          const kibeRows = await kibeRes.json();
+          body.innerHTML = "";
+
+          if (!Array.isArray(kibeRows) || kibeRows.length === 0) {
+            body.innerHTML = `<tr><td colspan="3">Még nem történt be- vagy kijelentkezés</td></tr>`;
+            return;
+          }
+
+          for (const row of kibeRows) {
+            const tr = document.createElement("tr");
+            const datum = row.DATUMIDO ? new Date(row.DATUMIDO).toLocaleString("hu-HU") : "-";
+
+            tr.innerHTML = `
+              <td>${datum}</td>
+              <td>${formatIrany(row.DIRECTION)}</td>
+              <td>${row.RFID_POZ ?? "-"}</td>
+            `;
+
+            body.appendChild(tr);
+          }
+
+        } catch (err) {
+          window.location.href = "login.html";
+        }
+      }
+
+      document.getElementById("frissitBtn").addEventListener("click", loadSessionAndData);
+      loadSessionAndData();
+
+    })();
+  </script>
+</body>
+</html>
