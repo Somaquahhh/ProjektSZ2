@@ -11,24 +11,284 @@
   <link href="style.css" rel="stylesheet">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
+  <script>
+    (function () {
+    
+      const tbEl = document.getElementById("tb");
+      const msgEl = document.getElementById("msg");
+      const searchEl = document.getElementById("userSearch");
+      let allUsers = [];
+    
+      function showMsg(text, ok=true){
+        msgEl.innerHTML = `<div class="alert ${ok ? "alert-success" : "alert-danger"} p-2">${text}</div>`;
+        setTimeout(()=> msgEl.innerHTML="", 2500);
+      }
+    
+      async function mustBeBoss() {
+        const r = await fetch("/api/me", { credentials:"include" });
+        if (!r.ok) { location.href="/login.html"; return false; }
+        const me = await r.json();
+        if ((me.role || "") !== "Boss") { showMsg("Nincs jogosultságod bro 😅", false); return false; }
+        return true;
+      }
+    
+      function renderUsers(rows){
+        const q = (searchEl?.value || "").trim().toLowerCase();
+    
+        const filtered = !q ? rows : rows.filter(u => {
+          const id = String(u.ID_USER ?? "");
+          const nev = String(u.NEV ?? "");
+          const email = String(u.EMAIL ?? "");
+          const csoport = String(u.CSOPORT ?? "");
+          const hay = (id + " " + nev + " " + email + " " + csoport).toLowerCase();
+          return hay.includes(q);
+        });
+    
+        tbEl.innerHTML =
+      filtered.map(u => `
+        <tr>
+          <td>${u.ID_USER}</td>
+    
+          <td><input class="form-control form-control-sm" data-f="NEV" data-id="${u.ID_USER}" value="${u.NEV ?? ""}"></td>
+          <td><input class="form-control form-control-sm" data-f="EMAIL" data-id="${u.ID_USER}" value="${u.EMAIL ?? ""}"></td>
+    
+          <td>
+            <input class="form-control form-control-sm" data-f="OM" data-id="${u.ID_USER}"
+                   value="${u.OM ?? ""}" maxlength="11" inputmode="numeric">
+          </td>
+    
+          <td>
+            <input class="form-control form-control-sm" data-f="RFID" data-id="${u.ID_USER}"
+                   value="${u.RFID ?? ""}">
+          </td>
+    
+          <td>
+            <select class="form-select form-select-sm" data-f="CSOPORT" data-id="${u.ID_USER}">
+              <option ${u.CSOPORT==="Students"?"selected":""} value="Students">Students</option>
+              <option ${u.CSOPORT==="Teachers"?"selected":""} value="Teachers">Teachers</option>
+              <option ${u.CSOPORT==="Boss"?"selected":""} value="Boss">Bosses</option>
+            </select>
+          </td>
+    
+          <td>
+            <input class="form-control form-control-sm" type="password"
+                   data-f="PASSWORD" data-id="${u.ID_USER}" placeholder="csak ha változik">
+          </td>
+    
+          <td>
+            <button class="btn btn-sm btn-warning" data-act="save" data-id="${u.ID_USER}">Mentés</button>
+            <button class="btn btn-sm btn-danger" data-act="del" data-id="${u.ID_USER}">Törlés</button>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="8">Nincs találat</td></tr>`;
+      }
+    
+      async function loadUsers(){
+        tbEl.innerHTML = `<tr><td colspan="5">Betöltés...</td></tr>`;
+        const r = await fetch("/api/admin/users", { credentials:"include" });
+        if (!r.ok) { tbEl.innerHTML = `<tr><td colspan="5">Hiba (${r.status})</td></tr>`; return; }
+        const data = await r.json();
+        allUsers = data.rows || [];
+        renderUsers(allUsers);
+      }
+    
+      document.getElementById("reloadBtn").onclick = loadUsers;
+    
+      //  kereső (gépelés közben)
+      searchEl?.addEventListener("input", () => renderUsers(allUsers));
+      searchEl?.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { searchEl.value = ""; renderUsers(allUsers); }
+      });
+    
+      //  ÚJ FELVÉTEL
+      document.getElementById("addBtn").onclick = async () => {
+        const login = document.getElementById("add_login").value.trim();
+        const email = document.getElementById("add_email").value.trim();
+        const nev = document.getElementById("add_nev").value.trim();
+        const om = document.getElementById("add_om").value.trim();
+        const rfid = document.getElementById("add_rfid").value.trim();
+        const password = document.getElementById("add_password").value.trim();
+        const csoport = document.getElementById("add_csoport").value;
+    
+        if (!login || !email || !nev || !om || !rfid || !password || !csoport) {
+          showMsg("Minden mezőt tölts ki!", false);
+          return;
+        }
+        if (!/^\d{11}$/.test(om)) {
+          showMsg("Az OM pontosan 11 számjegy lehet!", false);
+          return;
+        }
+    
+        const r = await fetch("/api/admin/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ login, email, nev, om, rfid, password, csoport })
+        });
+    
+        if (!r.ok) { showMsg(await r.text(), false); return; }
+    
+        showMsg("Felhasználó hozzáadva ");
+    
+        document.getElementById("add_login").value = "";
+        document.getElementById("add_email").value = "";
+        document.getElementById("add_nev").value = "";
+        document.getElementById("add_om").value = "";
+        document.getElementById("add_rfid").value = "";
+        document.getElementById("add_password").value = "";
+        document.getElementById("add_csoport").value = "Students";
+    
+        loadUsers();
+      };
+    
+      //  Mentés / Törlés (EGYSZER!)
+    tbEl.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+    
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+    
+      if (act === "save") {
+    
+        const nev = tbEl.querySelector(`[data-f="NEV"][data-id="${id}"]`).value.trim();
+        const email = tbEl.querySelector(`[data-f="EMAIL"][data-id="${id}"]`).value.trim();
+        const om = tbEl.querySelector(`[data-f="OM"][data-id="${id}"]`).value.trim();
+        const rfid = tbEl.querySelector(`[data-f="RFID"][data-id="${id}"]`).value.trim();
+        const csoport = tbEl.querySelector(`[data-f="CSOPORT"][data-id="${id}"]`).value;
+        const password = tbEl.querySelector(`[data-f="PASSWORD"][data-id="${id}"]`).value.trim();
+    
+        if (!nev || !email || !om || !rfid || !csoport) {
+          showMsg("Hiányzó adat!", false);
+          return;
+        }
+    
+        if (!/^\d{11}$/.test(om)) {
+          showMsg("Az OM pontosan 11 számjegy lehet!", false);
+          return;
+        }
+    
+        const r = await fetch(`/api/admin/users/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ nev, email, csoport, om, rfid, password })
+        });
+    
+        if (!r.ok) {
+          showMsg(await r.text(), false);
+          return;
+        }
+    
+        showMsg("Mentve ");
+    
+        // jelszó mező ürítése
+        tbEl.querySelector(`[data-f="PASSWORD"][data-id="${id}"]`).value = "";
+    
+        loadUsers();
+      }
+    
+      if (act === "del") {
+        if (!confirm("Biztos törlöd?")) return;
+    
+        const r = await fetch(`/api/admin/users/${id}`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+    
+        if (!r.ok) {
+          showMsg(await r.text(), false);
+          return;
+        }
+    
+        showMsg("Törölve ");
+        loadUsers();
+      }
+    });
+    
+      (async () => {
+        if (!(await mustBeBoss())) return;
+        loadUsers();
+      })();
+    
+    })();
+    </script>
 </head>
 
 <body>
   <div class="app-wrap">
     <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
       <h2 class="m-0">Admin panel</h2>
-      <button id="themeToggle" type="button" class="btn btn-outline-dark btn-sm" title="Light/Dark">🌙</button>
+    
     </div>
 
     <div id="msg" class="my-2"></div>
 
-    <!-- ✅ Új felhasználó rész TÖRÖLVE -->
+    <!--  Új felhasználó felvétele -->
+<div class="app-card mb-3">
+  <h5 class="m-0 mb-3">Új felhasználó felvétele</h5>
 
-    <div class="app-card">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="m-0">Felhasználók</h5>
-        <button id="reloadBtn" class="btn btn-secondary btn-sm">Frissítés</button>
-      </div>
+  <div class="row g-2">
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">Felhasználónév</label>
+      <input id="add_login" class="form-control form-control-sm" placeholder="login">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">EMAIL</label>
+      <input id="add_email" class="form-control form-control-sm" placeholder="email@domain.hu">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">NÉV</label>
+      <input id="add_nev" class="form-control form-control-sm" placeholder="Teljes név">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">OM</label>
+      <input id="add_om"
+       class="form-control form-control-sm"
+       placeholder="11 számjegy"
+       inputmode="numeric"
+       pattern="\d{11}"
+       maxlength="11">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">RFID</label>
+      <input id="add_rfid" class="form-control form-control-sm" placeholder="RFID kód">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">PASSWORD</label>
+      <input id="add_password" type="password" class="form-control form-control-sm" placeholder="jelszó">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">CSOPORT</label>
+      <select id="add_csoport" class="form-select form-select-sm">
+        <option value="Students">Students</option>
+        <option value="Teachers">Teachers</option>
+        <option value="Boss">Bosses</option>
+      </select>
+    </div>
+
+    <div class="col-12 col-md-3 d-flex align-items-end">
+      <button id="addBtn" class="btn btn-success btn-sm w-100">Felvétel</button>
+    </div>
+  </div>
+</div>
+
+    <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+  <h5 class="m-0">Felhasználók</h5>
+
+  <div class="d-flex align-items-center gap-2 ms-auto">
+    <input id="userSearch" class="form-control form-control-sm"
+           style="max-width:260px"
+           placeholder="Keresés (id, név, email, csoport)">
+    <button id="reloadBtn" class="btn btn-secondary btn-sm">Frissítés</button>
+  </div>
+</div>
 
       <div class="app-panel app-scroll mt-3">
         <table class="table app-table table-sm align-middle">
@@ -37,7 +297,10 @@
               <th>ID</th>
               <th>Név</th>
               <th>Email</th>
+              <th>OM</th>
+              <th>RFID</th>
               <th>Csoport</th>
+              <th>Új jelszó</th>
               <th style="width:220px;">Művelet</th>
             </tr>
           </thead>
@@ -49,96 +312,7 @@
     </div>
   </div>
 
-<script>
-(function () {
 
-  const tbEl = document.getElementById("tb");
-  const msgEl = document.getElementById("msg");
-
-  function showMsg(text, ok=true){
-    msgEl.innerHTML = `<div class="alert ${ok ? "alert-success" : "alert-danger"} p-2">${text}</div>`;
-    setTimeout(()=> msgEl.innerHTML="", 2500);
-  }
-
-  async function mustBeBoss() {
-    const r = await fetch("/api/me", { credentials:"include" });
-    if (!r.ok) { location.href="/login.html"; return false; }
-    const me = await r.json();
-    if ((me.role || "") !== "Boss") { showMsg("Nincs jogosultságod bro 😅", false); return false; }
-    return true;
-  }
-
-  async function loadUsers(){
-    tbEl.innerHTML = `<tr><td colspan="5">Betöltés...</td></tr>`;
-    const r = await fetch("/api/admin/users", { credentials:"include" });
-    if (!r.ok) { tbEl.innerHTML = `<tr><td colspan="5">Hiba (${r.status})</td></tr>`; return; }
-    const data = await r.json();
-    const rows = data.rows || [];
-
-    tbEl.innerHTML = rows.map(u => `
-      <tr>
-        <td>${u.ID_USER}</td>
-        <td><input class="form-control form-control-sm" data-f="NEV" data-id="${u.ID_USER}" value="${u.NEV ?? ""}"></td>
-        <td><input class="form-control form-control-sm" data-f="EMAIL" data-id="${u.ID_USER}" value="${u.EMAIL ?? ""}"></td>
-        <td>
-          <select class="form-select form-select-sm" data-f="CSOPORT" data-id="${u.ID_USER}">
-            <option ${u.CSOPORT==="Students"?"selected":""}>Students</option>
-            <option ${u.CSOPORT==="Teachers"?"selected":""}>Teachers</option>
-            <option ${u.CSOPORT==="Boss"?"selected":""}>Boss</option>
-          </select>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-warning" data-act="save" data-id="${u.ID_USER}">Mentés</button>
-          <button class="btn btn-sm btn-danger" data-act="del" data-id="${u.ID_USER}">Törlés</button>
-        </td>
-      </tr>
-    `).join("") || `<tr><td colspan="5">Nincs user</td></tr>`;
-  }
-
-  document.getElementById("reloadBtn").onclick = loadUsers;
-
-  tbEl.addEventListener("click", async (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    const id = btn.dataset.id;
-    const act = btn.dataset.act;
-
-    if (act === "save") {
-      const nev = tbEl.querySelector(`[data-f="NEV"][data-id="${id}"]`).value.trim();
-      const email = tbEl.querySelector(`[data-f="EMAIL"][data-id="${id}"]`).value.trim();
-      const csoport = tbEl.querySelector(`[data-f="CSOPORT"][data-id="${id}"]`).value;
-
-      const r = await fetch(`/api/admin/users/${id}`, {
-        method:"PUT",
-        headers:{ "Content-Type":"application/json" },
-        credentials:"include",
-        body: JSON.stringify({ nev, email, csoport })
-      });
-
-      if (!r.ok) { showMsg(await r.text(), false); return; }
-      showMsg("Mentve ✅");
-      loadUsers();
-    }
-
-    if (act === "del") {
-      if (!confirm("Biztos törlöd?")) return;
-      const r = await fetch(`/api/admin/users/${id}`, {
-        method:"DELETE",
-        credentials:"include"
-      });
-      if (!r.ok) { showMsg(await r.text(), false); return; }
-      showMsg("Törölve ✅");
-      loadUsers();
-    }
-  });
-
-  (async () => {
-    if (!(await mustBeBoss())) return;
-    loadUsers();
-  })();
-
-})();
-</script>
 
 </body>
 </html>

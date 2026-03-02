@@ -4,244 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Kikérő kezelő</title>
-
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-
   <link rel="stylesheet" href="style.css">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
-
-
-  <style>
-    .kartya{
-      border-radius: var(--radius);
-      padding: 12px;
-      margin: 10px 0;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-
-    h1, h2, p, label { color: var(--text); }
-    .muted { opacity: 0.8; font-size: 0.9em; }
-
-
-    .kartya select,
-    .kartya input,
-    .kartya option,
-    .kartya textarea{
-      color: #212529 !important;
-      background-color: #ffffff !important;
-    }
-
-
-    #uzenet{ margin-top: 10px; }
-
-
-    table{
-      width: 100%;
-      min-width: 900px;
-      border-collapse: collapse;
-      background: rgba(255,255,255,0.95);
-      color: #212529;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
-    th { background: rgba(0,0,0,0.05); text-align: left; }
-
-
-    .badge{
-      padding: 4px 10px;
-      border-radius: 999px;
-      display: inline-block;
-      font-weight: 700;
-      color: #111 !important;
-      background: #f1f3f5;
-      border: 1px solid rgba(0,0,0,0.15);
-    }
-    .badge-uj { background: #fff3bf; }
-    .badge-elfogadva { background: #d3f9d8; }
-    .badge-elutasitva { background: #ffe3e3; }
-
-
-    /* PDF preview: mindig light legyen */
-    #kilepoDokumentum, #kilepoDokumentum * { color: #212529 !important; }
-    #tanarKilepoDokumentum, #tanarKilepoDokumentum * { color: #212529 !important; }
-
-
-    :root{
-      --pdf-font: "Times New Roman", Times, serif;
-      --pdf-text: #111;
-      --pdf-muted: #555;
-      --pdf-border: #222;
-    }
-
-
-    #kilepoDokumentum,
-    #tanarKilepoDokumentum{
-      width: 700px;
-      padding: 22px;
-      background: #fff !important;
-      color: var(--pdf-text) !important;
-      font-family: var(--pdf-font);
-      border: 1px solid rgba(0,0,0,0.25);
-    }
-
-
-    .pdf-header{
-      display:flex;
-      justify-content: space-between;
-      align-items:flex-start;
-      gap: 16px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--pdf-border);
-      margin-bottom: 14px;
-    }
-
-
-    .pdf-school{ line-height: 1.25; }
-    .pdf-school .name{
-      font-size: 16pt;
-      font-weight: 700;
-      letter-spacing: .3px;
-    }
-    .pdf-school .meta{
-      font-size: 10.5pt;
-      color: var(--pdf-muted);
-    }
-
-
-    .pdf-docmeta{
-      text-align:right;
-      min-width: 220px;
-      font-size: 10.5pt;
-      color: var(--pdf-text);
-    }
-    .pdf-docmeta .title{
-      font-size: 14pt;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .pdf-docmeta .line{ margin-top: 4px; }
-
-
-    .pdf-body{ margin-top: 12px; font-size: 12pt; }
-
-
-    .pdf-grid{
-      display:grid;
-      grid-template-columns: 210px 1fr;
-      gap: 8px 12px;
-      margin-top: 10px;
-    }
-
-
-    .pdf-label{ font-weight: 700; }
-
-
-    .pdf-value{
-      border-bottom: 1px dotted #999;
-      padding-bottom: 2px;
-      min-height: 18px;
-    }
-
-
-    .pdf-value.block{
-      border: 1px solid rgba(0,0,0,0.25);
-      padding: 10px;
-      border-radius: 6px;
-      border-bottom: 1px solid rgba(0,0,0,0.25);
-    }
-
-
-    .pdf-sign{
-      margin-top: 22px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-
-    .pdf-sign .box{ padding-top: 18px; }
-    .pdf-sign .line{
-      border-top: 1px solid #111;
-      margin-top: 22px;
-    }
-    .pdf-sign .cap{
-      text-align:center;
-      font-size: 10.5pt;
-      color: var(--pdf-muted);
-      margin-top: 6px;
-    }
-
-
-    .pdf-footer{
-      margin-top: 18px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(0,0,0,0.25);
-      font-size: 10pt;
-      color: var(--pdf-muted);
-    }
-
-
-    /* Tanári státusz cella: badge + gomb egymás mellett */
-    .status-wrap{
-      display:flex;
-      gap: 8px;
-      align-items:center;
-      flex-wrap: wrap;
-    }
-    .btn-mini{
-      padding: 6px 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.25);
-      background: rgba(255,255,255,0.9);
-      font-weight: 700;
-    }
-    .btn-mini:hover{ background: rgba(255,255,255,1); }
-
-
-    @media print {
-      body * { visibility: hidden; }
-      #kilepoDokumentum, #kilepoDokumentum * { visibility: visible; }
-      #kilepoDokumentum{
-        width: auto;
-        border: none;
-        padding: 0;
-      }
-      @page { size: A4; margin: 12mm; }
-    }
-  </style>
 </head>
-
-
-<body>
+<body class="b-page">
+  <div id="bPageRoot">
   <div class="app-wrap">
     <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
       <div>
         <h1 class="m-0">Kikérő kezelő</h1>
         <p class="muted m-0">Diák: kikérőt kér → Tanár: csak a neki küldött kikérőket látja.</p>
       </div>
-
-
-      <button id="themeToggle" type="button" class="btn btn-outline-dark btn-sm" title="Light/Dark">🌙</button>
     </div>
-
-
     <div id="uzenet" class="kartya" style="display:none;"></div>
-
-
     <!-- DIÁK nézet -->
     <div id="diakNevzet" style="display:none;">
       <div class="kartya">
@@ -250,8 +30,6 @@
             <option value="">-- betöltés --</option>
           </select>
         </label>
-
-
         <label>Ok
           <select id="okSelect">
             <option value="">-- válassz --</option>
@@ -260,27 +38,17 @@
             <option value="Egyéb">Egyéb (szöveg alatt megadható)</option>
           </select>
         </label>
-
-
         <label>Részletek <span id="reszletekKotelezo" style="color:#ffb3b3; display:none;">*</span>
           <input id="reszletek" type="text" placeholder="pl. fogorvosi időpont 10:30" style="width:100%"/>
         </label>
-
-
         <label>Melyik napra?
           <input id="datum" type="date"/>
         </label>
-
-
         <label>Aláíró (diák / szülő neve)
           <input id="kuldoNev" type="text" placeholder="Diák vagy szülő neve"/>
         </label>
-
-
         <button id="kuldesBtn">Kérés elküldése</button>
       </div>
-
-
       <h2>Kikérő előnézet</h2>
       <div id="preview" class="kartya">
         <div id="kilepoDokumentum">
@@ -292,39 +60,25 @@
                 Telefon: (ide jöhet) • Email: (ide jöhet)
               </div>
             </div>
-
-
             <div class="pdf-docmeta">
               <div class="title">KIKÉRŐ</div>
               <div class="line"><b>Azonosító:</b> <span id="prDocId">KIK-000000</span></div>
               <div class="line"><b>Kelt:</b> <span id="prKelt">----</span></div>
             </div>
           </div>
-
-
           <div class="pdf-body">
             <div class="pdf-grid">
               <div class="pdf-label">Tanár neve</div>
               <div class="pdf-value"><span id="prTanar">--</span></div>
-
-
               <div class="pdf-label">Tanuló / kérelmező</div>
               <div class="pdf-value"><span id="prKuldo">--</span></div>
-
-
               <div class="pdf-label">Nap</div>
               <div class="pdf-value"><span id="prDatum">--</span></div>
-
-
               <div class="pdf-label">Ok</div>
               <div class="pdf-value"><span id="prOk">--</span></div>
-
-
               <div class="pdf-label">Részletek / indoklás</div>
               <div class="pdf-value block"><span id="prReszletek">--</span></div>
             </div>
-
-
             <div class="pdf-sign">
               <div class="box">
                 <div class="line"></div>
@@ -335,8 +89,6 @@
                 <div class="cap">Tanár aláírása</div>
               </div>
             </div>
-
-
             <div class="pdf-footer">
               A dokumentum elektronikusan került előállításra.
               A PDF letöltése kizárólag tanári jóváhagyás (ELFOGADVA állapot) után lehetséges.
@@ -344,13 +96,9 @@
           </div>
         </div>
       </div>
-
-
       <h2>Saját kikérőim</h2>
       <div class="kartya" style="overflow:auto;">
         <button id="diakFrissitBtn">Frissítés</button>
-
-
         <table>
           <thead>
             <tr>
@@ -370,8 +118,6 @@
         </table>
       </div>
     </div>
-
-
     <!-- TANÁR nézet -->
     <div id="tanarNevzet" style="display:none;">
       <div class="kartya">
@@ -379,8 +125,6 @@
         <p class="muted">Csak a te ID_USER-eddel egyező tanárhoz küldött kérések jelennek meg.</p>
         <button id="frissitBtn">Frissítés</button>
       </div>
-
-
       <div class="kartya" style="overflow:auto;">
         <table>
           <thead>
@@ -401,9 +145,7 @@
       </div>
     </div>
   </div>
-
-
-  <!-- ✅ TANÁRI ELŐNÉZET MODAL -->
+  <!--  TANÁRI ELŐNÉZET MODAL -->
   <div class="modal fade" id="tanarPreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content" style="color:#111;">
@@ -422,39 +164,25 @@
                     Telefon: (ide jöhet) • Email: (ide jöhet)
                   </div>
                 </div>
-
-
                 <div class="pdf-docmeta">
                   <div class="title">KIKÉRŐ</div>
                   <div class="line"><b>Azonosító:</b> <span id="tprDocId">KIK-000000</span></div>
                   <div class="line"><b>Kelt:</b> <span id="tprKelt">----</span></div>
                 </div>
               </div>
-
-
               <div class="pdf-body">
                 <div class="pdf-grid">
                   <div class="pdf-label">Tanár neve</div>
                   <div class="pdf-value"><span id="tprTanar">--</span></div>
-
-
                   <div class="pdf-label">Tanuló / kérelmező</div>
                   <div class="pdf-value"><span id="tprKuldo">--</span></div>
-
-
                   <div class="pdf-label">Nap</div>
                   <div class="pdf-value"><span id="tprDatum">--</span></div>
-
-
                   <div class="pdf-label">Ok</div>
                   <div class="pdf-value"><span id="tprOk">--</span></div>
-
-
                   <div class="pdf-label">Részletek / indoklás</div>
                   <div class="pdf-value block"><span id="tprReszletek">--</span></div>
                 </div>
-
-
                 <div class="pdf-footer">
                   Előnézet – letöltés nem elérhető tanári oldalon.
                 </div>
@@ -468,17 +196,26 @@
       </div>
     </div>
   </div>
-
-
   <script>
+    // --- kis helper: kevesebb ismétlődő fetch boilerplate ---
+    async function fetchJson(url, options) {
+      const res = await fetch(url, { credentials: "include", ...(options || {}) });
+      const data = await res.json().catch(() => null);
+      return { res, data };
+    }
+    async function fetchJsonOrText(url, options) {
+      const res = await fetch(url, { credentials: "include", ...(options || {}) });
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        return { res, data, errorText: "" };
+      }
+      const errorText = await res.text().catch(() => "");
+      return { res, data: null, errorText };
+    }
     var ui = {
       uzenet: document.getElementById("uzenet"),
-
-
       diakNevzet: document.getElementById("diakNevzet"),
       tanarNevzet: document.getElementById("tanarNevzet"),
-
-
       tanarSelect: document.getElementById("tanarSelect"),
       okSelect: document.getElementById("okSelect"),
       reszletek: document.getElementById("reszletek"),
@@ -486,21 +223,15 @@
       kuldoNev: document.getElementById("kuldoNev"),
       kuldesBtn: document.getElementById("kuldesBtn"),
       reszletekKotelezo: document.getElementById("reszletekKotelezo"),
-
-
       prTanar: document.getElementById("prTanar"),
       prDatum: document.getElementById("prDatum"),
       prOk: document.getElementById("prOk"),
       prReszletek: document.getElementById("prReszletek"),
       prKuldo: document.getElementById("prKuldo"),
-
-
       frissitBtn: document.getElementById("frissitBtn"),
       kikeroTabla: document.getElementById("kikeroTabla"),
       diakFrissitBtn: document.getElementById("diakFrissitBtn"),
       diakTabla: document.getElementById("diakTabla"),
-
-
       tanarPreviewModalEl: document.getElementById("tanarPreviewModal"),
       tprDocId: document.getElementById("tprDocId"),
       tprKelt: document.getElementById("tprKelt"),
@@ -510,22 +241,16 @@
       tprOk: document.getElementById("tprOk"),
       tprReszletek: document.getElementById("tprReszletek"),
     };
-
-
     var DIAK_ROWS_BY_ID = {};
     var TANAR_ROWS_BY_ID = {};
     var _teacherModalBound = false;
     var _lastPreviewTriggerEl = null;
-
-
     function uzenet(szoveg, ok = true) {
       ui.uzenet.style.display = "block";
       ui.uzenet.style.background = ok ? "rgba(30,120,50,0.35)" : "rgba(160,40,40,0.35)";
       ui.uzenet.innerText = szoveg;
       setTimeout(() => { ui.uzenet.style.display = "none"; }, ok ? 3000 : 6000);
     }
-
-
     function maDatumISO() {
       const d = new Date();
       const yyyy = d.getFullYear();
@@ -533,8 +258,6 @@
       const dd = String(d.getDate()).padStart(2, "0");
       return `${yyyy}-${mm}-${dd}`;
     }
-
-
     function reszletekSzabaly() {
       const kotelezo = (ui.okSelect.value === "Egyéb");
       ui.reszletek.required = kotelezo;
@@ -543,8 +266,6 @@
         ? "Kötelező megadni (pl. ügyintézés, verseny, stb.)"
         : "pl. fogorvosi időpont 10:30";
     }
-
-
     function elonezetFrissit() {
       const tanarNev = ui.tanarSelect.options[ui.tanarSelect.selectedIndex]?.textContent || "--";
       ui.prTanar.innerText = tanarNev || "--";
@@ -553,25 +274,17 @@
       ui.prReszletek.innerText = ui.reszletek.value || "--";
       ui.prKuldo.innerText = ui.kuldoNev.value || "--";
     }
-
-
     async function sessionBetolt() {
-      const res = await fetch("/session", { cache: "no-store" });
-      const data = await res.json();
-      if (!data || !data.bejelentkezett) {
+      const { res, data } = await fetchJson("/session", { cache: "no-store" });
+      if (!res.ok || !data || !data.bejelentkezett) {
         window.location.href = "/login.html";
         return null;
       }
       return data.user;
     }
-
-
     async function tanarokBetoltese() {
-      const res = await fetch("/api/tanarok", { cache: "no-store" });
+      const { res, data } = await fetchJson("/api/tanarok", { cache: "no-store" });
       if (!res.ok) throw new Error("Tanárok lekérése sikertelen");
-      const data = await res.json();
-
-
       ui.tanarSelect.innerHTML = `<option value="">-- válassz --</option>`;
       (data.rows || []).forEach(t => {
         const opt = document.createElement("option");
@@ -580,16 +293,12 @@
         ui.tanarSelect.appendChild(opt);
       });
     }
-
-
     function ellenorzes() {
       const idTanar = ui.tanarSelect.value.trim();
       const ok = ui.okSelect.value.trim();
       const nap = ui.datum.value.trim();
       const kuldo = ui.kuldoNev.value.trim();
       const resz = ui.reszletek.value.trim();
-
-
       if (!idTanar) return "Válassz tanárt!";
       if (!ok) return "Válassz okot!";
       if (!nap) return "Adj meg dátumot!";
@@ -597,19 +306,13 @@
       if (ui.reszletek.required && !resz) return "Egyéb oknál a részletek kötelező!";
       return null;
     }
-
-
     async function kerelmetKuldes() {
       const hiba = ellenorzes();
       if (hiba) { uzenet(hiba, false); return; }
-
-
       ui.kuldesBtn.disabled = true;
       ui.kuldesBtn.textContent = "Küldés...";
-
-
       try {
-        const res = await fetch("/api/kikero", {
+        const { res, data: out } = await fetchJson("/api/kikero", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -620,17 +323,8 @@
             kuldoNev: ui.kuldoNev.value
           })
         });
-
-
-        const out = await res.json().catch(() => ({}));
-
-
-        if (!res.ok || !out.ok) throw new Error(out.error || "A kérés mentése sikertelen");
-
-
+        if (!res.ok || !out?.ok) throw new Error(out?.error || "A kérés mentése sikertelen");
         if (out.id) localStorage.setItem("kikero_kuldo_" + String(out.id), ui.kuldoNev.value.trim());
-
-
         uzenet("Kikérő elküldve. A PDF csak tanári elfogadás után tölthető le.", true);
         await diakKikeroLista();
       } catch (e) {
@@ -641,16 +335,12 @@
         ui.kuldesBtn.textContent = "Kérés elküldése";
       }
     }
-
-
     function datumSzep(iso) {
       if (!iso) return "";
       const d = new Date(iso);
       if (isNaN(d.getTime())) return String(iso);
       return d.toLocaleDateString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit" });
     }
-
-
     function datumIdoSzep(iso) {
       if (!iso) return "";
       const d = new Date(iso);
@@ -659,8 +349,6 @@
         year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"
       });
     }
-
-
     function escapeHtml(s) {
       return String(s || "")
         .replaceAll("&", "&amp;")
@@ -669,8 +357,6 @@
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
-
-
     function fileDateYYYYMMDD(v) {
       if (!v) return "";
       const s = String(v);
@@ -685,47 +371,29 @@
       }
       return s.replace(/[:.]/g, "_").replace(/[^\w\-]/g, "_");
     }
-
-
     async function pdfLetoltesById(idKikero) {
       const row = DIAK_ROWS_BY_ID[String(idKikero)];
       if (!row) { uzenet("Nem találom ezt a kikérőt a listában.", false); return; }
       if (String(row.ALLAPOT) !== "ELFOGADVA") { uzenet("PDF csak ELFOGADVA állapotnál tölthető le.", false); return; }
-
-
       const storedKuldo = localStorage.getItem("kikero_kuldo_" + String(idKikero));
-
-
       let sessionName = "";
       try {
         const s = await fetch("/session", { cache: "no-store", credentials: "include" }).then(r => r.json());
         sessionName = (s && s.user && s.user.NEV) ? String(s.user.NEV) : "";
       } catch {}
-
-
       const kuldoNev =
         (storedKuldo && storedKuldo.trim()) ? storedKuldo.trim()
         : (sessionName.trim() ? sessionName.trim()
         : "--");
-
-
       ui.prTanar.innerText = row.TANAR_NEV || "--";
       ui.prOk.innerText = row.OK || "--";
       ui.prDatum.innerText = datumSzep(row.NAP) || "--";
       ui.prReszletek.innerText = (row.RESZLETEK && String(row.RESZLETEK).trim()) ? row.RESZLETEK : "--";
       ui.prKuldo.innerText = kuldoNev;
-
-
       const elDocId = document.getElementById("prDocId");
       const elKelt  = document.getElementById("prKelt");
-
-
       const docIdStr = "KIK-" + String(idKikero).padStart(6, "0");
-
-
       if (elDocId) elDocId.textContent = docIdStr;
-
-
       if (elKelt) {
         const now = new Date();
         const y = now.getFullYear();
@@ -733,43 +401,27 @@
         const d = String(now.getDate()).padStart(2, "0");
         elKelt.textContent = `${y}.${m}.${d}.`;
       }
-
-
       try {
         const { jsPDF } = window.jspdf;
         const elem = document.getElementById("kilepoDokumentum");
         const canvas = await html2canvas(elem, { scale: 2, useCORS: true, logging: false });
         const imgData = canvas.toDataURL("image/png");
-
-
         const pdf = new jsPDF("p", "mm", "a4");
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
-
-
         const margin = 10;
         const maxW = pageW - margin * 2;
         const maxH = pageH - margin * 2;
-
-
         let renderW = maxW;
         let renderH = (canvas.height * renderW) / canvas.width;
-
-
         if (renderH > maxH) {
           const sc = maxH / renderH;
           renderW *= sc;
           renderH *= sc;
         }
-
-
         const x = (pageW - renderW) / 2;
         const y = margin;
-
-
         pdf.addImage(imgData, "PNG", x, y, renderW, renderH);
-
-
         const napStr = fileDateYYYYMMDD(row.NAP) || "dokumentum";
         pdf.save(`Kikero_${napStr}_${docIdStr}.pdf`);
       } catch (e) {
@@ -777,8 +429,6 @@
         uzenet("PDF hiba: " + (e.message || "ismeretlen"), false);
       }
     }
-
-
     function setTodayMeta(docIdStr, elDocId, elKelt){
       if (elDocId) elDocId.textContent = docIdStr;
       if (elKelt) {
@@ -789,33 +439,23 @@
         elKelt.textContent = `${y}.${m}.${d}.`;
       }
     }
-
-
     function cleanupBootstrapModalArtifacts(){
       document.querySelectorAll(".modal-backdrop").forEach(b => b.remove());
       document.body.classList.remove("modal-open");
       document.body.style.removeProperty("padding-right");
       document.body.style.removeProperty("overflow");
     }
-
-
     function ensureTeacherModalWiring(){
       if (_teacherModalBound || !ui.tanarPreviewModalEl) return;
       _teacherModalBound = true;
-
-
       if (ui.tanarPreviewModalEl.parentElement !== document.body) {
         document.body.appendChild(ui.tanarPreviewModalEl);
       }
-
-
-      // ✅ FÓKUSZ: bezáráskor előbb blur, utána cleanup + visszafókusz
+      //  FÓKUSZ: bezáráskor előbb blur, utána cleanup + visszafókusz
       ui.tanarPreviewModalEl.addEventListener("hide.bs.modal", function () {
         const a = document.activeElement;
         if (a && typeof a.blur === "function") a.blur();
       });
-
-
       ui.tanarPreviewModalEl.addEventListener("hidden.bs.modal", function () {
         cleanupBootstrapModalArtifacts();
         if (_lastPreviewTriggerEl && typeof _lastPreviewTriggerEl.focus === "function") {
@@ -824,80 +464,50 @@
         _lastPreviewTriggerEl = null;
       });
     }
-
-
     function openTeacherPreview(row, triggerEl){
       if (!row || !ui.tanarPreviewModalEl) return;
-
-
       ensureTeacherModalWiring();
       _lastPreviewTriggerEl = triggerEl || null;
-
-
       const docIdStr = "KIK-" + String(row.ID_KIKERO || "").padStart(6, "0");
       setTodayMeta(docIdStr, ui.tprDocId, ui.tprKelt);
-
-
       ui.tprTanar.textContent = String(row.TANAR_NEV || "--");
       ui.tprKuldo.textContent = String(row.KULDO_NEV || "--");
       ui.tprDatum.textContent = datumSzep(row.NAP) || "--";
       ui.tprOk.textContent = String(row.OK || "--");
       ui.tprReszletek.textContent =
         (row.RESZLETEK && String(row.RESZLETEK).trim()) ? String(row.RESZLETEK) : "--";
-
-
       cleanupBootstrapModalArtifacts();
-
-
       const modal = bootstrap.Modal.getOrCreateInstance(ui.tanarPreviewModalEl, {
         backdrop: true,
         keyboard: true,
         focus: true
       });
-
-
       modal.show();
     }
-
-
     async function diakKikeroLista() {
       ui.diakTabla.innerHTML = `<tr><td colspan="8">Betöltés...</td></tr>`;
       try {
-        const res = await fetch("/api/kikero/diak", { cache: "no-store" });
+        const { res, data, errorText } = await fetchJsonOrText("/api/kikero/diak", { cache: "no-store" });
         if (!res.ok) {
-          const txt = await res.text();
-          ui.diakTabla.innerHTML = `<tr><td colspan="8">Hiba (${res.status}): ${escapeHtml(txt)}</td></tr>`;
+          ui.diakTabla.innerHTML = `<tr><td colspan="8">Hiba (${res.status}): ${escapeHtml(errorText)}</td></tr>`;
           return;
         }
-
-
-        const data = await res.json().catch(() => null);
         const rows = Array.isArray(data) ? data : (data?.rows || []);
-
-
         DIAK_ROWS_BY_ID = {};
         rows.forEach(r => { DIAK_ROWS_BY_ID[String(r.ID_KIKERO)] = r; });
-
-
         if (rows.length === 0) {
           ui.diakTabla.innerHTML = `<tr><td colspan="8">Nincs még kikérőd.</td></tr>`;
           return;
         }
-
-
         ui.diakTabla.innerHTML = rows.map(r => {
           const allapot = String(r.ALLAPOT || "");
           const badgeClass =
             allapot === "UJ" ? "badge-uj" :
             allapot === "ELFOGADVA" ? "badge-elfogadva" :
             allapot === "ELUTASITVA" ? "badge-elutasitva" : "";
-
-
           const pdfCell = (allapot === "ELFOGADVA")
             ? `<button type="button" data-action="pdf" data-id="${escapeHtml(String(r.ID_KIKERO))}">PDF</button>`
             : `<span class="muted">Várakozás...</span>`;
-
-
           return `
             <tr>
               <td>${escapeHtml(String(r.TANAR_NEV ?? ""))}</td>
@@ -915,52 +525,34 @@
         ui.diakTabla.innerHTML = `<tr><td colspan="8">Hálózati hiba: ${escapeHtml(e.message || "ismeretlen")}</td></tr>`;
       }
     }
-
-
     async function tanarKikeroLista() {
       ui.kikeroTabla.innerHTML = `<tr><td colspan="7">Betöltés...</td></tr>`;
       try {
-        const res = await fetch("/api/kikero/tanar", { cache: "no-store" });
+        const { res, data, errorText } = await fetchJsonOrText("/api/kikero/tanar", { cache: "no-store" });
         if (!res.ok) {
-          const txt = await res.text();
-          ui.kikeroTabla.innerHTML = `<tr><td colspan="7">Hiba (${res.status}): ${escapeHtml(txt)}</td></tr>`;
+          ui.kikeroTabla.innerHTML = `<tr><td colspan="7">Hiba (${res.status}): ${escapeHtml(errorText)}</td></tr>`;
           return;
         }
-
-
-        const data = await res.json().catch(() => null);
         const rows = Array.isArray(data) ? data : (data?.rows || []);
-
-
         TANAR_ROWS_BY_ID = {};
         rows.forEach(r => { TANAR_ROWS_BY_ID[String(r.ID_KIKERO)] = r; });
-
-
         if (rows.length === 0) {
           ui.kikeroTabla.innerHTML = `<tr><td colspan="7">Nincs hozzád érkezett kikérő.</td></tr>`;
           return;
         }
-
-
         ui.kikeroTabla.innerHTML = rows.map(r => {
           const allapot = String(r.ALLAPOT || "");
           const badgeClass =
             allapot === "UJ" ? "badge-uj" :
             allapot === "ELFOGADVA" ? "badge-elfogadva" :
             allapot === "ELUTASITVA" ? "badge-elutasitva" : "";
-
-
           const previewBtn = `<button type="button" class="btn-mini" data-action="preview" data-id="${escapeHtml(String(r.ID_KIKERO))}">Előnézet</button>`;
-
-
           const actionButtons = (allapot === "UJ")
             ? `
               <button type="button" data-action="elfogad" data-id="${escapeHtml(String(r.ID_KIKERO))}">Elfogad</button>
               <button type="button" data-action="elutasit" data-id="${escapeHtml(String(r.ID_KIKERO))}">Elutasít</button>
             `
             : `<span class="muted">Már elbírálva</span>`;
-
-
           return `
             <tr>
               <td>${escapeHtml(String(r.KULDO_NEV ?? ""))}</td>
@@ -982,112 +574,82 @@
         ui.kikeroTabla.innerHTML = `<tr><td colspan="7">Hálózati hiba: ${escapeHtml(e.message || "ismeretlen")}</td></tr>`;
       }
     }
+    window.init = async function init() {
+      // SPA/AJAX navigációnál a b.html tartalma cserélődhet. Emiatt nem globális
+      // flaggel guardolunk (az beragadna), hanem az aktuális root elemhez kötjük.
+      const root = document.getElementById("bPageRoot");
+      if (!root) return;
+      if (root.dataset.inited === "1") return;
+      root.dataset.inited = "1";
 
-
-    (async function init() {
       const user = await sessionBetolt();
       if (!user) return;
-
-
       ui.datum.value = maDatumISO();
-
-
       ui.okSelect.addEventListener("change", () => { reszletekSzabaly(); elonezetFrissit(); });
       ui.tanarSelect.addEventListener("change", elonezetFrissit);
       ui.reszletek.addEventListener("input", elonezetFrissit);
       ui.datum.addEventListener("change", elonezetFrissit);
       ui.kuldoNev.addEventListener("input", elonezetFrissit);
-
-
       ui.diakFrissitBtn.addEventListener("click", diakKikeroLista);
       ui.kuldesBtn.addEventListener("click", kerelmetKuldes);
-
-
       const role = String(user.CSOPORT || "").toLowerCase();
-
-
       if (role === "teachers" || role === "teacher" || role === "boss") {
         ui.tanarNevzet.style.display = "block";
         ui.diakNevzet.style.display = "none";
-
-
         ui.frissitBtn.addEventListener("click", tanarKikeroLista);
         tanarKikeroLista();
         ensureTeacherModalWiring();
       } else {
         ui.diakNevzet.style.display = "block";
         ui.tanarNevzet.style.display = "none";
-
-
         await tanarokBetoltese();
         reszletekSzabaly();
         elonezetFrissit();
         diakKikeroLista();
       }
-    })();
-
-
-    ui.kikeroTabla.addEventListener("click", async (ev) => {
-      const btn = ev.target.closest("button");
-      if (!btn) return;
-
-
-      const action = btn.dataset.action;
-      const idKikero = btn.dataset.id;
-
-
-      if (action === "preview") {
-        const row = TANAR_ROWS_BY_ID[String(idKikero)];
-        openTeacherPreview(row, btn);
-        return;
-      }
-
-
-      if (action !== "elfogad" && action !== "elutasit") return;
-
-
-      const allapot = (action === "elfogad") ? "ELFOGADVA" : "ELUTASITVA";
-
-
+    };
+    // Delegált kattintáskezelők (tanár + diák táblázat)
+    function onTableAction(tbodyEl, handlers) {
+      if (!tbodyEl) return;
+      tbodyEl.addEventListener("click", async (ev) => {
+        const btn = ev.target.closest("button");
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        const fn = handlers[action];
+        if (fn) await fn(id, btn);
+      });
+    }
+    async function tanarAllapotMentes(idKikero, allapot) {
       const megjegyzes = prompt("Megjegyzés (opcionális):", "");
       if (megjegyzes === null) return;
-
-
       try {
-        const res = await fetch("/api/kikero/allapot", {
+        const { res, errorText } = await fetchJsonOrText("/api/kikero/allapot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idKikero, allapot, megjegyzes })
         });
-
-
         if (!res.ok) {
-          const txt = await res.text();
-          uzenet("Hiba: " + txt, false);
-          tanarKikeroLista();
-          return;
+          uzenet("Hiba: " + errorText, false);
+          return tanarKikeroLista();
         }
-
-
         uzenet("Sikeres mentés: " + allapot, true);
         tanarKikeroLista();
       } catch (e) {
         uzenet("Hálózati hiba: " + (e.message || "ismeretlen"), false);
       }
+    }
+    onTableAction(ui.kikeroTabla, {
+      preview: (id, btn) => openTeacherPreview(TANAR_ROWS_BY_ID[String(id)], btn),
+      elfogad: (id) => tanarAllapotMentes(id, "ELFOGADVA"),
+      elutasit: (id) => tanarAllapotMentes(id, "ELUTASITVA")
     });
-
-
-    ui.diakTabla.addEventListener("click", async (ev) => {
-      const btn = ev.target.closest("button");
-      if (!btn) return;
-      if (btn.dataset.action !== "pdf") return;
-      const id = btn.dataset.id;
-      if (!id) return;
-      pdfLetoltesById(id);
+    onTableAction(ui.diakTabla, {
+      pdf: (id) => id && pdfLetoltesById(id)
     });
+    // Biztonságos init meghívás (common_studio13.js is hívhatja)
+    if (window.init) window.init();
   </script>
+  </div>
 </body>
 </html>
-
-
-

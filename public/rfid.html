@@ -11,6 +11,71 @@
   <link href="style.css" rel="stylesheet">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
+
+  <script>
+    (function () {
+      var rfidBtn = document.getElementById("rfid_btn");
+      var rfidInput = document.getElementById("rfid_input");
+      var startTimeInput = document.getElementById("start_time");
+      var eredmenyDiv = document.getElementById("eredmeny");
+  
+      if (!rfidBtn) return;
+  
+      rfidBtn.addEventListener("click", async function (e) {
+        e.preventDefault();
+  
+        var kod = rfidInput.value.trim();
+        if (!kod) {
+          alert("Adj meg RFID kódot!");
+          return;
+        }
+  
+        var start = startTimeInput.value;
+  
+        try {
+          var res = await fetch(
+            `/api/rfid/event?kod=${encodeURIComponent(kod)}&direction=in&start=${encodeURIComponent(start)}`,
+            { credentials: "include" }
+          );
+  
+          if (!res.ok) {
+            var msg = await res.text();
+            eredmenyDiv.innerHTML = `<p class="text-danger">${msg}</p>`;
+            return;
+          }
+  
+          var data = await res.json();
+  
+          var statusText =
+            data.status === "late"
+              ? `KÉSÉS: ${data.diffMinutes} perc`
+              : "Időben érkezett";
+  
+          eredmenyDiv.innerHTML = `
+            <div class="app-panel p-3">
+              <p class="mb-1"><b>Név:</b> ${data.NEV}</p>
+              <p class="mb-1"><b>Email:</b> ${data.EMAIL}</p>
+              <p class="mb-1"><b>OM:</b> ${data.OM || "-"}</p>
+              <p class="mb-1"><b>Sulikezdés:</b> ${start}</p>
+              <p class="mt-2"><b>${statusText}</b></p>
+              <button id="ok_btn" class="btn btn-secondary">OK</button>
+            </div>
+          `;
+  
+          document.getElementById("ok_btn").onclick = function () {
+            rfidInput.value = "";
+            eredmenyDiv.innerHTML = "";
+            rfidInput.focus();
+          };
+  
+        } catch (err) {
+          console.error(err);
+          eredmenyDiv.innerHTML = "<p class='text-danger'>Hiba történt</p>";
+        }
+      });
+  
+    })();
+    </script>
 </head>
 
 <body>
@@ -43,69 +108,6 @@
     </div>
   </div>
 
-  <script>
-  (function () {
-    var rfidBtn = document.getElementById("rfid_btn");
-    var rfidInput = document.getElementById("rfid_input");
-    var startTimeInput = document.getElementById("start_time");
-    var eredmenyDiv = document.getElementById("eredmeny");
-
-    if (!rfidBtn) return;
-
-    rfidBtn.addEventListener("click", async function (e) {
-      e.preventDefault();
-
-      var kod = rfidInput.value.trim();
-      if (!kod) {
-        alert("Adj meg RFID kódot!");
-        return;
-      }
-
-      var start = startTimeInput.value;
-
-      try {
-        var res = await fetch(
-          `/api/rfid/event?kod=${encodeURIComponent(kod)}&direction=in&start=${encodeURIComponent(start)}`,
-          { credentials: "include" }
-        );
-
-        if (!res.ok) {
-          var msg = await res.text();
-          eredmenyDiv.innerHTML = `<p class="text-danger">${msg}</p>`;
-          return;
-        }
-
-        var data = await res.json();
-
-        var statusText =
-          data.status === "late"
-            ? `KÉSÉS: ${data.diffMinutes} perc`
-            : "Időben érkezett";
-
-        eredmenyDiv.innerHTML = `
-          <div class="app-panel p-3">
-            <p class="mb-1"><b>Név:</b> ${data.NEV}</p>
-            <p class="mb-1"><b>Email:</b> ${data.EMAIL}</p>
-            <p class="mb-1"><b>OM:</b> ${data.OM || "-"}</p>
-            <p class="mb-1"><b>Sulikezdés:</b> ${start}</p>
-            <p class="mt-2"><b>${statusText}</b></p>
-            <button id="ok_btn" class="btn btn-secondary">OK</button>
-          </div>
-        `;
-
-        document.getElementById("ok_btn").onclick = function () {
-          rfidInput.value = "";
-          eredmenyDiv.innerHTML = "";
-          rfidInput.focus();
-        };
-
-      } catch (err) {
-        console.error(err);
-        eredmenyDiv.innerHTML = "<p class='text-danger'>Hiba történt</p>";
-      }
-    });
-
-  })();
-  </script>
+ 
 </body>
 </html>

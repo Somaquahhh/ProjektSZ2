@@ -11,32 +11,6 @@
   <link rel="stylesheet" href="style.css">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
-</head>
-
-<body>
-  <div class="app-wrap">
-    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-      <h2 class="m-0">RFID Kimenet</h2>
-    </div>
-
-    <div class="app-card">
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label">RFID kód:</label>
-          <input id="rfid_input" type="text" class="form-control" placeholder="RFID kód">
-        </div>
-
-        <div class="col-12">
-          <button id="rfid_btn" class="btn btn-primary">Mentés</button>
-        </div>
-      </div>
-
-      <hr class="my-4">
-
-      <h4 class="mb-2">Eredmény:</h4>
-      <div id="eredmeny"></div>
-    </div>
-  </div>
 
   <script>
     (function () {
@@ -54,7 +28,7 @@
         }
 
         try {
-          // ✅ relatív URL, nincs API_BASE, nincs újradefiniálás
+         
           const res = await fetch(
             `/api/rfid/event?kod=${encodeURIComponent(kod)}&direction=out`,
             { credentials: "include" }
@@ -86,5 +60,33 @@
       });
     })();
   </script>
+</head>
+
+<body>
+  <div class="app-wrap">
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+      <h2 class="m-0">RFID Kimenet</h2>
+    </div>
+
+    <div class="app-card">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">RFID kód:</label>
+          <input id="rfid_input" type="text" class="form-control" placeholder="RFID kód">
+        </div>
+
+        <div class="col-12">
+          <button id="rfid_btn" class="btn btn-primary">Mentés</button>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <h4 class="mb-2">Eredmény:</h4>
+      <div id="eredmeny"></div>
+    </div>
+  </div>
+
+ 
 </body>
 </html>

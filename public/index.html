@@ -42,7 +42,12 @@
          <!-- Csány gomb -->
       <a class="btn btn-outline-light nav-social-btn bi bi-mortarboard"
       href="https://www.csany-zeg.hu/"
-      target="_blank" title="TikTok"></a>
+      target="_blank" title="Csány Laszló Technikum"></a>
+
+      <!-- Csány Store gomb -->
+      <a class="btn btn-outline-light nav-social-btn bi bi-cart"
+         href=https://csanystore.schoozy.hu/termekkategoria/kotelezo/
+         target="_blank" title="Csány Áruház"></a>
     </div>
 
     <div id="szoveg_csoport">
@@ -87,7 +92,7 @@
       <div class="side-card">
         <div class="side-title">Gyors műveletek</div>
 
-        <!-- ✅ Ezt tölti a common_studio13.js a menüből role alapján -->
+      
         <div class="side-actions" id="sb_quick"></div>
 
         <div class="muted small" style="margin-top:10px;">
@@ -96,19 +101,96 @@
       </div>
     </aside>
 
-    <!-- KÖZÉP: MAIN -->
     <main id="main1" class="main main-panel container-fluid py-4">
-      <div class="row align-items-center">
-        <div class="elso">
-          <div class="col-md-6 text-start">
-            <h1 class="display-4 fw-bold mb-4 text-success">
-              Az SZ2 Projekt kezdőlapjára érkezett
-            </h1>
-            <p class="lead mb-4">
-              Az iskolai tanárok, diákok és vezetőség részére készült bejelentkeztető oldal. <br>
-              Kérjük, jelentkezzen be a jobb-fenti gomb segítségével, hogy elérje a menüpont további felületeit.
-            </p>
-          </div>
+
+      <div class="home-layout">
+    
+        <!-- =========================
+             1) BEMUTATÁS (FULL WIDTH)
+        ========================== -->
+        <section class="home-hero">
+          <h1 class="hero-title">
+            A Csány porta rendszerének bemutatása
+          </h1>
+    
+          <p class="hero-text">
+            A Zalaegerszegi ZSZC Csány László technikum Porta rendszerének oldalára érkezett.
+            Ez Az oldal a belépések és kilépések kezelését segíti valamint egyszerűsíti a kikérők dokumentálását a diákok és tanárok számra egyaránt.
+          </p>
+    
+          <p class="hero-text">
+            Az oldalon mindenki megtekintheti saját érkezéseit, valamint távozásait az intézménybe/ből a saját adatok menüpontban.
+          </p>
+
+          <p class="hero-text">
+            A kikérő menüben pedig a diákok kikérőt tudnak kérelmezni az adott tanáruknak, valamint később letölteni azt amennyiben tanáruk engedélyezi.
+          </p>
+
+          <p class="hero-text">
+            A menüből valamint a gyors műveletek sávból elérsz minden számodra szükséges oldalt, emellett az "F2" gomb lenyomása egyből lenyitja a menüt.
+          </p>
+        </section>
+    
+    
+        <!-- =========================
+             2) ALSÓ 2 DOBOZ
+        ========================== -->
+        <div class="home-bottom">
+    
+          <!-- Iskola -->
+          <section class="home-card">
+            <h2 class="card-title">Iskola elérhetőségei</h2>
+    
+            <div class="kv-row">
+              <span class="kv-k">Cím</span>
+              <span class="kv-v">8900 Zalaegerszeg, Jókai M. u. 4-6.</span>
+            </div>
+    
+            <div class="kv-row">
+              <span class="kv-k">Telefon</span>
+              <span class="kv-v">+3692511800</span>
+            </div>
+    
+            <div class="kv-row">
+              <span class="kv-k">Email</span>
+              <span class="kv-v">igazgatosag@csany-zeg.hu</span>
+            </div>
+    
+            <div class="kv-row">
+              <span class="kv-k">Web</span>
+              <span class="kv-v">
+                <a href="https://www.csany-zeg.hu" target="_blank" class="home-link">
+                  www.csany-zeg.hu
+                </a>
+              </span>
+            </div>
+          </section>
+    
+    
+          <!-- Fejlesztők -->
+          <section class="home-card">
+            <h2 class="card-title">Fejlesztők</h2>
+    
+            <div class="dev-item">
+              <div class="dev-name">Gaál Olivér</div>
+              <div class="dev-role">gaal.oliver@csany-zeg.hu</div>
+            </div>
+    
+            <div class="dev-item">
+              <div class="dev-name">Déri Soma</div>
+              <div class="dev-role">deri.soma@csany-zeg.hu</div>
+            </div>
+    
+            <div class="dev-item">
+              <div class="dev-name">Dobri Dominik Nátán</div>
+              <div class="dev-role">dobri.dominik.natan@csany-zeg.hu</div>
+            </div>
+    
+            <div class="version-note">
+              Verzió: v1.0 • SZ2 Project
+            </div>
+          </section>
+    
         </div>
       </div>
     </main>
@@ -117,18 +199,20 @@
     <aside id="sidebarRight" class="side-panel">
       <div class="side-card">
         <div class="side-title">Hol vagy?</div>
-        <div class="side-big" id="sb_page">Studio 13</div>
+        <div class="side-big" id="sb_page">Csány Porta rendszer</div>
         <div class="muted small" id="sb_page_hint">
-          Használd a menüt a funkciók eléréséhez. A bal panelen gyorsgombok vannak.
+          Használd a menüt a funkciók eléréséhez, amely az oldal bal felső sarkában található. A bal panelen gyorsgombok vannak.
         </div>
       </div>
 
       <div class="side-card">
         <div class="side-title">Hasznos tippek</div>
         <ul class="side-list" id="sb_tips">
-          <li>Adatkeresőben név/OM alapján gyorsan szűrhetsz.</li>
-          <li>RFID be oldalon a “Sulikezdés” beállításával számol késést.</li>
+          <li>A saját adatok fülön láthatod mikor értél be, távoztál az iskolából.</li>
+          <li>Az "F2" gomb lenyomásával gyorsan eléred a menüt.</li>
           <li>Kikérő: a PDF csak elfogadás után tölthető le.</li>
+         
+
         </ul>
       </div>
 
@@ -136,9 +220,9 @@
         <div class="side-title">Állapot</div>
         <div class="side-row"><span class="muted">Bejelentkezve</span><b id="sb_logged">-</b></div>
 
-        <!-- ✅ common_studio13.js ezt frissíti másodpercenként -->
+     
         <div class="side-row">
-          <span class="muted" id="sb_session_label">Bejelentkezve óta</span>
+          <span class="muted" id="sb_session_label">Bejelentkezés óta:</span>
           <b id="sb_session_age">-</b>
         </div>
       </div>
@@ -185,7 +269,7 @@
             $("#login1_user").html(response.user.CSOPORT + ":<br><b>" + response.user.NEV + "</b>");
             $("#menu1_button").prop("disabled", false);
 
-            // ✅ ha még nincs beállítva, innen indítjuk a timer-t (common is tudja)
+    
             if (!localStorage.getItem("login_ts")) {
               localStorage.setItem("login_ts", String(Date.now()));
             }
@@ -229,7 +313,7 @@
           } catch (e) {
             mySend({ text: "Hiba a kijelentkezés során.", tip: "danger", mp: 3 });
           } finally {
-            // ✅ timer nullázás
+          
             localStorage.removeItem("login_ts");
             window.location.href = "login.html";
           }
@@ -258,8 +342,8 @@
 
     // 2) amikor felért (vagy kis késleltetéssel), nyitjuk a menüt
     setTimeout(function () {
-      // opcionális: biztosan legyen látható (ne toggoljon)
-      // $("#menu1_card").stop(true, true).fadeIn(300);
+   
+
 
       $("#menu1_card").stop(true, true).fadeIn(300);
     }, 250);

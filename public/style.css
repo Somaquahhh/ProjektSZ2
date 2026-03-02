@@ -66,8 +66,11 @@ input { font-family: Verdana, Tahoma; }
   overflow: auto;
   overflow-y: auto;
   display: none;              /* alapban rejtett */
-  box-shadow: 11px 12px 21px 1px rgba(0,0,0,0.79);
+  box-shadow: 11px 12px 21px 1px rgba(0,0,0,);
+  color: #dce1e7;
 }
+
+
 
 ul.xmenu {
   list-style-type: none;
@@ -803,3 +806,408 @@ body.login-page #themeToggle:hover{
   .nav-social-btn:last-child{
     margin-right: 0;
   }
+  
+
+  /* =========================
+   RESPONSIVE PATCH (csak main)
+   Tedd a style.css legaljára
+   ========================= */
+
+/* 1) Layout: ha kisebb a képernyő, legyen 1 oszlop */
+@media (max-width: 1200px){
+  .layout-grid{
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* oldalsávok maradjanak eltűnve (ahogy szeretnéd) */
+  #sidebarLeft, #sidebarRight{ display: none !important; }
+
+  .main-panel{
+    padding: 16px !important;
+    min-height: auto !important;
+  }
+}
+
+/* 2) Mobil: navbar / header ne kavarjon */
+@media (max-width: 768px){
+  /* a középre abszolút cím mobilon ne ütközzön */
+  #szoveg_csoport{
+    position: static !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+    margin: 0 auto;
+    padding: 6px 0;
+  }
+
+  #navbar{
+    padding: 12px !important;
+  }
+
+  /* a jobb felső login szöveg ne legyen óriási */
+  #login1_user{
+    font-size: 12px !important;
+    line-height: 1.1;
+  }
+
+  /* a social gombok és a menü gomb távolságai */
+  #menu1_button{ margin-right: 14px !important; }
+  .nav-social-btn{ margin-right: 10px !important; }
+}
+
+/* 3) Main “app” oldalak: ne legyen túl széles, legyen szellős mobilon */
+@media (max-width: 768px){
+  .app-wrap{
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .app-card{
+    padding: 14px;
+  }
+
+  /* bootstrap grid-eknél jobb tördelés */
+  .row.g-2, .row.g-3{ --bs-gutter-x: 0.75rem; }
+}
+
+/* 4) Táblázatok: mobilon legyen oldalra görgethető, ne törje szét a dizájnt */
+@media (max-width: 768px){
+  .app-panel, .kartya{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table{
+    min-width: 680px; /* görgethető lesz, nem szétesős */
+  }
+}
+
+/* 5) Hosszú szövegek/email-ek ne lógjanak ki */
+.app-table td, .app-table th{
+  word-break: break-word;
+}
+
+/* b.html (kikérő kezelő) izolált stílusok */
+    #bPageRoot .kartya{
+      border-radius: var(--radius);
+      padding: 12px;
+      margin: 10px 0;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    #bPageRoot h1, #bPageRoot h2, #bPageRoot p, #bPageRoot label{ color: var(--text); }
+    #bPageRoot .muted{ opacity: 0.8; font-size: 0.9em; }
+    #bPageRoot .kartya select, #bPageRoot .kartya input, #bPageRoot .kartya option, #bPageRoot .kartya textarea{
+      color: #212529 !important;
+      background-color: #ffffff !important;
+    }
+    #bPageRoot #uzenet{ margin-top: 10px; }
+    #bPageRoot table{
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.95);
+      color: #212529;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #bPageRoot th, #bPageRoot td{ padding: 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    #bPageRoot th{ background: rgba(0,0,0,0.05); text-align: left; }
+    #bPageRoot .badge{
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-block;
+      font-weight: 700;
+      color: #111 !important;
+      background: #f1f3f5;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+    #bPageRoot .badge-uj{ background: #fff3bf; }
+    #bPageRoot .badge-elfogadva{ background: #d3f9d8; }
+    #bPageRoot .badge-elutasitva{ background: #ffe3e3; }
+    /* PDF preview: mindig light legyen */
+#bPageRoot #kilepoDokumentum, #bPageRoot #kilepoDokumentum *{ color: #212529 !important; }
+    #bPageRoot #tanarKilepoDokumentum, #bPageRoot #tanarKilepoDokumentum *{ color: #212529 !important; }
+    #bPageRoot{
+      --pdf-font: "Times New Roman", Times, serif;
+      --pdf-text: #111;
+      --pdf-muted: #555;
+      --pdf-border: #222;
+    }
+    #bPageRoot #kilepoDokumentum, #bPageRoot #tanarKilepoDokumentum{
+      width: 700px;
+      padding: 22px;
+      background: #fff !important;
+      color: var(--pdf-text) !important;
+      font-family: var(--pdf-font);
+      border: 1px solid rgba(0,0,0,0.25);
+    }
+    #bPageRoot .pdf-header{
+      display:flex;
+      justify-content: space-between;
+      align-items:flex-start;
+      gap: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--pdf-border);
+      margin-bottom: 14px;
+    }
+    #bPageRoot .pdf-school{ line-height: 1.25; }
+    #bPageRoot .pdf-school .name{
+      font-size: 16pt;
+      font-weight: 700;
+      letter-spacing: .3px;
+    }
+    #bPageRoot .pdf-school .meta{
+      font-size: 10.5pt;
+      color: var(--pdf-muted);
+    }
+    #bPageRoot .pdf-docmeta{
+      text-align:right;
+      min-width: 220px;
+      font-size: 10.5pt;
+      color: var(--pdf-text);
+    }
+    #bPageRoot .pdf-docmeta .title{
+      font-size: 14pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    #bPageRoot .pdf-docmeta .line{ margin-top: 4px; }
+    #bPageRoot .pdf-body{ margin-top: 12px; font-size: 12pt; }
+    #bPageRoot .pdf-grid{
+      display:grid;
+      grid-template-columns: 210px 1fr;
+      gap: 8px 12px;
+      margin-top: 10px;
+    }
+    #bPageRoot .pdf-label{ font-weight: 700; }
+    #bPageRoot .pdf-value{
+      border-bottom: 1px dotted #999;
+      padding-bottom: 2px;
+      min-height: 18px;
+    }
+    #bPageRoot .pdf-value.block{
+      border: 1px solid rgba(0,0,0,0.25);
+      padding: 10px;
+      border-radius: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.25);
+    }
+    #bPageRoot .pdf-sign{
+      margin-top: 22px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    #bPageRoot .pdf-sign .box{ padding-top: 18px; }
+    #bPageRoot .pdf-sign .line{
+      border-top: 1px solid #111;
+      margin-top: 22px;
+    }
+    #bPageRoot .pdf-sign .cap{
+      text-align:center;
+      font-size: 10.5pt;
+      color: var(--pdf-muted);
+      margin-top: 6px;
+    }
+    #bPageRoot .pdf-footer{
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0,0,0,0.25);
+      font-size: 10pt;
+      color: var(--pdf-muted);
+    }
+    /* Tanári státusz cella: badge + gomb egymás mellett */
+    #bPageRoot .status-wrap{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+    #bPageRoot .btn-mini{
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.25);
+      background: rgba(255,255,255,0.9);
+      font-weight: 700;
+    }
+    #bPageRoot .btn-mini:hover{ background: rgba(255,255,255,1); }
+    @media print {
+      body * { visibility: hidden; }
+      #kilepoDokumentum, #kilepoDokumentum * { visibility: visible; }
+      #kilepoDokumentum{
+        width: auto;
+        border: none;
+        padding: 0;
+      }
+      @page { size: A4; margin: 12mm; }
+    }
+  
+
+/* === b.html TANÁRI ELŐNÉZET MODAL (Bootstrap a body-ba átrakja) ===
+   A JS a #tanarPreviewModal-t document.body alá mozgatja, ezért a #bPageRoot scope itt nem érvényes.
+   Ezek a szabályok csak erre a modalra vonatkoznak.
+*/
+#tanarPreviewModal #tanarKilepoDokumentum,
+#tanarPreviewModal #tanarKilepoDokumentum *{
+  color: #212529 !important;
+}
+#tanarPreviewModal #tanarKilepoDokumentum{
+  background: #fff !important;
+  padding: 18px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  font-family: "Times New Roman", Times, serif;
+}
+#tanarPreviewModal .pdf-header{
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #222;
+}
+#tanarPreviewModal .pdf-school{ line-height: 1.25; }
+#tanarPreviewModal .pdf-school .name{ font-weight: 700; font-size: 13pt; }
+#tanarPreviewModal .pdf-school .meta{ font-size: 10.5pt; color: #555; margin-top: 4px; }
+#tanarPreviewModal .pdf-docmeta{ text-align: right; }
+#tanarPreviewModal .pdf-docmeta .title{ font-weight: 800; font-size: 16pt; letter-spacing: .5px; }
+#tanarPreviewModal .pdf-docmeta .line{ margin-top: 4px; }
+#tanarPreviewModal .pdf-body{ margin-top: 12px; font-size: 12pt; }
+#tanarPreviewModal .pdf-grid{
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  row-gap: 8px;
+  column-gap: 10px;
+}
+#tanarPreviewModal .pdf-label{ font-weight: 700; }
+#tanarPreviewModal .pdf-value{ border-bottom: 1px solid rgba(0,0,0,.15); padding-bottom: 2px; }
+#tanarPreviewModal .pdf-value.block{ border: 1px solid rgba(0,0,0,.15); padding: 8px 10px; border-radius: 6px; min-height: 42px; }
+#tanarPreviewModal .pdf-footer{ margin-top: 14px; font-size: 10.5pt; color: #555; }
+
+
+/* =========================
+   KEZDŐOLDAL – ÚJ LAYOUT
+   ========================= */
+
+   .home-layout{
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  
+  /* ===== HERO (bemutatás) ===== */
+  
+  .home-hero{
+    padding: 28px;
+    border-radius: 22px;
+    background: linear-gradient(
+      135deg,
+      rgba(59,130,246,0.18),
+      rgba(17,28,52,0.60)
+    );
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+
+    min-height: 320px;   /* <-- EZ A LÉNYEG */
+  }
+  
+  .hero-title{
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 18px;
+  }
+  
+  .hero-text{
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(229,231,235,0.92);
+    margin-bottom: 14px;
+  }
+  
+  /* ===== Alsó 2 doboz ===== */
+  
+  .home-bottom{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  @media (min-width: 1000px){
+    .home-bottom{
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  /* ===== Kártyák ===== */
+  
+  .home-card{
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(17,28,52,0.55);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  
+  .card-title{
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+  
+  /* Kulcs-érték sor */
+  
+  .kv-row{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  
+  .kv-k{
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  
+  .kv-v{
+    text-align: right;
+  }
+  
+  /* Fejlesztők */
+  
+  .dev-item{
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  
+  .dev-name{
+    font-weight: 800;
+  }
+  
+  .dev-role{
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  
+  .version-note{
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  #menu1_button{
+    background-color: #0f172a !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  

@@ -5,26 +5,217 @@
   <title>Napló kezelő</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-
   <link rel="stylesheet" href="style.css">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
-</head>
 
+  <script>
+    (function(){
+    
+      function esc(s){
+        return String(s ?? "").replace(/[&<>"']/g, m => (
+          { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]
+        ));
+      }
+          function parseSqlDateTime(v) {
+            if (!v) return null;
+            const s = String(v).trim();
+    
+            // ISO (pl. 2026-02-27T10:30:00Z)
+            const iso = new Date(s);
+            if (!isNaN(iso.getTime())) return iso;
+    
+            // MySQL DATETIME: "YYYY-MM-DD HH:MM:SS" vagy "YYYY-MM-DD HH:MM"
+            const m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+            if (!m) return null;
+    
+            const y = Number(m[1]), mo = Number(m[2]) - 1, d = Number(m[3]);
+            const h = Number(m[4]), mi = Number(m[5]), se = Number(m[6] || 0);
+            return new Date(y, mo, d, h, mi, se); // helyi idő
+          }
+    
+          function formatHuDateTime(v) {
+            const d = parseSqlDateTime(v);
+            return d ? d.toLocaleString("hu-HU") : (v ? String(v) : "-");
+          }
+    
+    
+      // ---------- KIBE ----------
+      async function loadKibe(){
+        try {
+          const r = await fetch("/api/admin/kibe", { credentials:"include" });
+          if (!r.ok) throw new Error(await r.text());
+    
+          const data = await r.json();
+          const rows = Array.isArray(data) ? data : (data.rows || []);
+    
+          document.getElementById("kibe_tb").innerHTML =
+            rows.map(x => `
+              <tr>
+                <td>${x.ID_KIBE}</td>
+                <td>${esc(x.NEV || "")}</td>
+                <td>${x.DATUMIDO ? formatHuDateTime(x.DATUMIDO) : ""}</td>
+                <td>${esc(x.DIRECTION || "")}</td>
+                <td>${esc(x.RFID_POZ || "")}</td>
+                <td>${x.KESES_PERC ?? ""}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger"
+                    onclick="delKibe(${x.ID_KIBE})">Törlés</button>
+                </td>
+              </tr>
+            `).join("") || `<tr><td colspan="7">Nincs adat</td></tr>`;
+    
+        } catch(e){
+          document.getElementById("kibe_tb").innerHTML =
+            `<tr><td colspan="7" class="text-danger">${esc(e.message)}</td></tr>`;
+        }
+      }
+    
+      window.delKibe = async function(id){
+        if (!confirm("Biztos törlöd?")) return;
+        const r = await fetch("/api/admin/kibe/" + id, {
+          method: "DELETE",
+          credentials: "include"
+        });
+        if (!r.ok) alert(await r.text());
+        loadKibe();
+        loadAudit();
+        loadBelepes();
+      }
+    
+      // ---------- KIKERO ----------
+      async function loadKikero(){
+        try {
+          const r = await fetch("/api/admin/kikero", { credentials:"include" });
+          if (!r.ok) throw new Error(await r.text());
+    
+          const data = await r.json();
+          const rows = Array.isArray(data) ? data : (data.rows || []);
+    
+          document.getElementById("kikero_tb").innerHTML =
+            rows.map(x => `
+              <tr>
+                <td>${x.ID_KIKERO}</td>
+                <td>${esc(x.DIAK_NEV || "")}</td>
+                <td>${esc(x.TANAR_NEV || "")}</td>
+                <td>${esc(x.NAP || "")}</td>
+                <td>${esc(x.OK || "")}</td>
+                <td>${esc(x.ALLAPOT || "")}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger"
+                    onclick="delKikero(${x.ID_KIKERO})">Törlés</button>
+                </td>
+              </tr>
+            `).join("") || `<tr><td colspan="7">Nincs adat</td></tr>`;
+    
+        } catch(e){
+          document.getElementById("kikero_tb").innerHTML =
+            `<tr><td colspan="7" class="text-danger">${esc(e.message)}</td></tr>`;
+        }
+      }
+    
+      window.delKikero = async function(id){
+        if (!confirm("Biztos törlöd?")) return;
+        const r = await fetch("/api/admin/kikero/" + id, {
+          method: "DELETE",
+          credentials: "include"
+        });
+        if (!r.ok) alert(await r.text());
+        loadKikero();
+        loadAudit();
+        loadBelepes();
+      }
+    
+      // ---------- AUDIT ----------
+      async function loadAudit(){
+        const tb = document.getElementById("audit_tb");
+        const q = (document.getElementById("audit_q").value || "").trim();
+    
+        tb.innerHTML = `<tr><td colspan="8">Betöltés...</td></tr>`;
+    
+        try {
+          const url = "/api/admin/audit?limit=200" + (q ? ("&q=" + encodeURIComponent(q)) : "");
+          const r = await fetch(url, { credentials:"include" });
+          if (!r.ok) throw new Error(await r.text());
+    
+          const data = await r.json();
+          const rows = (data.rows || []).filter(x => {
+      const isAuth = x.OBJEKTUM === "auth" && (x.MUVELET === "BELEPES" || x.MUVELET === "KIJELENTKEZES");
+      return !isAuth; //  az auth be/ki NEM jelenik meg itt
+    });
+    
+          tb.innerHTML =
+            rows.map(x => `
+              <tr>
+                <td>${x.ID_NAPLO}</td>
+                <td>${x.DATUM_IDO ? formatHuDateTime(x.DATUM_IDO) : ""}</td>
+                <td>${esc(x.FELHASZNALO_NEV || ("#" + (x.FELHASZNALO_ID ?? "")))}</td>
+                <td>${esc(x.MUVELET || "")}</td>
+                <td>${esc(x.OBJEKTUM || "")}</td>
+                <td>${x.OBJEKTUM_ID ?? ""}</td>
+                <td>${esc(x.IP_CIM || "")}</td>
+                <td style="max-width:420px; white-space:pre-wrap;">${esc(x.RESZLETEK || "")}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="8">Nincs audit adat</td></tr>`;
+    
+        } catch(e){
+          tb.innerHTML = `<tr><td colspan="8" class="text-danger">${esc(e.message)}</td></tr>`;
+        }
+      }
+    
+      document.getElementById("audit_reload").onclick = loadAudit;
+      document.getElementById("audit_q").addEventListener("input", () => loadAudit());
+    
+      // ---------- BE/KI NAPLÓ (auth események) ----------
+      async function loadBelepes(){
+        const tb = document.getElementById("belepes_tb");
+        tb.innerHTML = `<tr><td colspan="5">Betöltés...</td></tr>`;
+    
+        try {
+          const r = await fetch("/api/admin/audit?limit=500&q=auth", { credentials:"include" });
+          if (!r.ok) throw new Error(await r.text());
+    
+          const data = await r.json();
+          const rows = (data.rows || []).filter(x =>
+      x.OBJEKTUM === "auth" && (x.MUVELET === "BELEPES" || x.MUVELET === "KIJELENTKEZES")
+    );
+    
+          tb.innerHTML =
+            rows.map(x => `
+              <tr>
+                <td>${x.ID_NAPLO}</td>
+                <td>${x.DATUM_IDO ? formatHuDateTime(x.DATUM_IDO) : ""}</td>
+                <td>${esc(x.FELHASZNALO_NEV || "")}</td>
+                <td>${esc(x.MUVELET || "")}</td>
+                <td>${esc(x.IP_CIM || "")}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="5">Nincs adat</td></tr>`;
+    
+        } catch(e){
+          tb.innerHTML = `<tr><td colspan="5" class="text-danger">${esc(e.message)}</td></tr>`;
+        }
+      }
+    
+      // INIT
+      loadKibe();
+      loadKikero();
+      loadAudit();
+      loadBelepes();
+    
+    })();
+    </script>
+</head>
 
 <body>
 <div class="app-wrap">
 
-
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="m-0">Napló kezelő (Admin)</h2>
   </div>
-
 
   <ul class="nav nav-tabs">
     <li class="nav-item">
@@ -37,11 +228,19 @@
         KIKÉRŐ napló
       </button>
     </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#audit_tab">
+        AUDIT log
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#belepes_tab">
+        Log- in/out napló
+      </button>
+    </li>
   </ul>
 
-
   <div class="tab-content app-card mt-3">
-
 
     <!-- ================= KIBE ================= -->
     <div class="tab-pane fade show active" id="kibe_tab">
@@ -63,7 +262,6 @@
       </table>
     </div>
 
-
     <!-- ================= KIKERO ================= -->
     <div class="tab-pane fade" id="kikero_tab">
       <table class="table app-table table-sm">
@@ -84,116 +282,57 @@
       </table>
     </div>
 
+    <!-- ================= AUDIT ================= -->
+    <div class="tab-pane fade" id="audit_tab">
+
+      <div class="d-flex gap-2 align-items-center mb-2 flex-wrap">
+        <input id="audit_q" class="form-control form-control-sm" style="max-width:320px"
+               placeholder="Keresés (név, művelet, objektum, részletek)">
+        <button id="audit_reload" class="btn btn-secondary btn-sm">Frissítés</button>
+        <small class="text-muted ms-auto">Legutóbbi 200 esemény</small>
+      </div>
+
+      <table class="table app-table table-sm">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Dátum</th>
+            <th>Ki</th>
+            <th>Művelet</th>
+            <th>Objektum</th>
+            <th>Objektum ID</th>
+            <th>IP</th>
+            <th>Részletek</th>
+          </tr>
+        </thead>
+        <tbody id="audit_tb">
+          <tr><td colspan="8">Betöltés...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ================= BE/KI ================= -->
+    <div class="tab-pane fade" id="belepes_tab">
+      <table class="table app-table table-sm">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Dátum</th>
+            <th>Felhasználó</th>
+            <th>Művelet</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody id="belepes_tb">
+          <tr><td colspan="5">Betöltés...</td></tr>
+        </tbody>
+      </table>
+    </div>
 
   </div>
 </div>
 
 
-<script>
-(function(){
-
-
-  // ---------- KIBE ----------
-  async function loadKibe(){
-    try {
-      const r = await fetch("/api/admin/kibe", { credentials:"include" });
-      if (!r.ok) throw new Error(await r.text());
-
-
-      const data = await r.json();
-      const rows = Array.isArray(data) ? data : (data.rows || []);
-
-
-      document.getElementById("kibe_tb").innerHTML =
-        rows.map(x => `
-          <tr>
-            <td>${x.ID_KIBE}</td>
-            <td>${x.NEV || ""}</td>
-            <td>${x.DATUMIDO ? new Date(x.DATUMIDO).toLocaleString("hu-HU") : ""}</td>
-            <td>${x.DIRECTION || ""}</td>
-            <td>${x.RFID_POZ || ""}</td>
-            <td>${x.KESES_PERC ?? ""}</td>
-            <td>
-              <button class="btn btn-sm btn-danger"
-                onclick="delKibe(${x.ID_KIBE})">Törlés</button>
-            </td>
-          </tr>
-        `).join("") || `<tr><td colspan="7">Nincs adat</td></tr>`;
-
-
-    } catch(e){
-      document.getElementById("kibe_tb").innerHTML =
-        `<tr><td colspan="7" class="text-danger">${e.message}</td></tr>`;
-    }
-  }
-
-
-  window.delKibe = async function(id){
-    if (!confirm("Biztos törlöd?")) return;
-    await fetch("/api/admin/kibe/" + id, {
-      method: "DELETE",
-      credentials: "include"
-    });
-    loadKibe();
-  }
-
-
-  // ---------- KIKERO ----------
-  async function loadKikero(){
-    try {
-      const r = await fetch("/api/admin/kikero", { credentials:"include" });
-      if (!r.ok) throw new Error(await r.text());
-
-
-      const data = await r.json();
-      const rows = Array.isArray(data) ? data : (data.rows || []);
-
-
-      document.getElementById("kikero_tb").innerHTML =
-        rows.map(x => `
-          <tr>
-            <td>${x.ID_KIKERO}</td>
-            <td>${x.DIAK_NEV || ""}</td>
-            <td>${x.TANAR_NEV || ""}</td>
-            <td>${x.NAP || ""}</td>
-            <td>${x.OK || ""}</td>
-            <td>${x.ALLAPOT || ""}</td>
-            <td>
-              <button class="btn btn-sm btn-danger"
-                onclick="delKikero(${x.ID_KIKERO})">Törlés</button>
-            </td>
-          </tr>
-        `).join("") || `<tr><td colspan="7">Nincs adat</td></tr>`;
-
-
-    } catch(e){
-      document.getElementById("kikero_tb").innerHTML =
-        `<tr><td colspan="7" class="text-danger">${e.message}</td></tr>`;
-    }
-  }
-
-
-  window.delKikero = async function(id){
-    if (!confirm("Biztos törlöd?")) return;
-    await fetch("/api/admin/kikero/" + id, {
-      method: "DELETE",
-      credentials: "include"
-    });
-    loadKikero();
-  }
-
-
-  // INIT
-  loadKibe();
-  loadKikero();
-
-
-})();
-</script>
-
 
 </body>
 </html>
-
-
-

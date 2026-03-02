@@ -1,14 +1,9 @@
-// =========================================================
-// datamodule_mysql.js (LETISZTÍTVA / BIZTOS / COPY-PASTE)
-// ✅ Megmarad: DB.query(sql, params, (json_data, error)=>{})
-// ✅ Paraméterezett lekérdezések
-// ✅ Pool + connection.release mindig
-// ✅ Opcionális napló a "naplo" táblába (bekapcsolva hagytam, mert nálad volt)
-// ⚠️ A régi BUGOS maxcount/pages logika KIVÉVE (nem volt megbízható, és nem kötelező a szerveredhez)
-// =========================================================
+
 
 const mysql = require("mysql");
 const util = require("util");
+
+const DEBUG_SQL = process.env.DEBUG_SQL === "1";
 
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -17,10 +12,10 @@ const pool = mysql.createPool({
   port: "9406",
   password: "Csany0379",
   database: "studio13_csany_zeg",
-  // charset: "utf8mb4", // ha kell ékezet / emoji
+
 });
 
-// Egyszerű naplózás: mindig pool.query-vel (nem a már release-elt connection-nel)
+
 function logToDb(p0, p1, sql, jsText) {
   try {
     const sql_naplo = "INSERT INTO naplo (USER, URL, SQLX) VALUES (?, ?, ?)";
@@ -48,8 +43,10 @@ const DB = {
         // biztosan csak egyszer engedjük el
         try { connection.release(); } catch {}
         // konzol + DB napló
-        console.log(util.inspect(`SQL: ${sql} --- ${p0} ${p1}`, false, null, false));
-        if (jsTextForLog) console.log(util.inspect(jsTextForLog, false, null, false));
+        if (DEBUG_SQL) {
+          console.log(util.inspect(`SQL: ${sql} --- ${p0} ${p1}`, false, null, false));
+          if (jsTextForLog) console.log(util.inspect(jsTextForLog, false, null, false));
+        }
         logToDb(p0, p1, sql, jsTextForLog);
         // vissza a hívónak
         callback(okStr, errStr);

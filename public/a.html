@@ -87,7 +87,7 @@
 
 <script>
 (function () {
-  // ✅ FONTOS: ajax fragmentnél mindig IIFE, ne legyen globális szemetelés
+  
 
   async function ajax_post(urlsor, tipus) {
     try {
@@ -124,9 +124,7 @@
   const modalEl = document.getElementById("userModal");
   if (!modalEl) return;
 
-  // ✅ FONTOS: ha AJAX-szal töltöd be az oldalt (#main1-be),
-  // a modal a main-ben marad -> backdrop feljön, modal eltűnhet.
-  // Tedd át BODY-ba megnyitás előtt:
+  
   if (modalEl.parentElement !== document.body) {
     document.body.appendChild(modalEl);
   }
@@ -136,7 +134,7 @@
 }
 
 
-  // ✅ frissítés
+  
   (async function init() {
     const r_json = await ajax_post("/asd", 1);
 
@@ -166,7 +164,7 @@
 
       $("#D2").html(s || "<tr><td colspan='4'>Nincs találat</td></tr>");
 
-      // ✅ click bind a frissített sorokra (delegálva)
+      
       $("#D2 tr").off("click").on("click", function () {
         const idx = $(this).index();
         const filtered = [];
@@ -183,7 +181,7 @@
       });
     }
 
-    // init
+    
     frissitTabla("", "NEV");
 
     $("#search-input, #search-field").off("input change").on("input change", function () {

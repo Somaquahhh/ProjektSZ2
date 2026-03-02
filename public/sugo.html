@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="/favicon-32x32.png" type="image/png">
+  <title>Súgó</title>
+
+
+  <style>
+    body {
+      font-family: system-ui, Segoe UI, Arial, sans-serif;
+      margin: 0;
+      background: #0b1220;
+      color: #e6e6e6;
+    }
+
+
+    header {
+      padding: 16px 18px;
+      background: #0f1a33;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+
+    .card {
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .10);
+      border-radius: 14px;
+      padding: 14px;
+      overflow: hidden; /* overflow fix */
+    }
+
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+
+    select,
+    input,
+    button {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .15);
+      background: rgba(0, 0, 0, .35);
+      color: #fff;
+      outline: none;
+    }
+
+
+    button {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+
+
+    .row {
+      display: grid;
+      gap: 10px;
+    }
+
+
+    /* ✅ JAVÍTOTT GRID – nem lóg ki */
+    @media (min-width: 760px) {
+      .row {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+    }
+
+
+    .gridBtns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+
+    @media (min-width: 760px) {
+      .gridBtns {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      background: rgba(0, 0, 0, .35);
+      border: 1px solid rgba(255, 255, 255, .10);
+      border-radius: 14px;
+      padding: 12px;
+      line-height: 1.45;
+    }
+
+
+    .muted {
+      opacity: .75;
+      font-size: 13px;
+    }
+
+
+    a {
+      color: #8ab4ff;
+    }
+
+
+    /* --- FIX: a globál style.css label margin-top-ja ne rondítson bele --- */
+    main label {
+      margin: 0 0 6px !important; /* felül 0, alul 6px */
+    }
+
+
+    /* --- FIX: grid elemek ne lógjanak/torzítsanak katt zónát --- */
+    .row > div {
+      min-width: 0;
+    }
+
+
+    /* (opcionális, de jót tesz) */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+
+<body>
+<header>
+  <h1>❓ Súgó központ</h1>
+  <div class="muted">Válaszd ki, melyik oldalról szeretnél részletes súgót.</div>
+</header>
+
+
+<main>
+
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="pageSel">Oldal kiválasztása</label>
+        <select id="pageSel"></select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button id="showBtn">Súgó megjelenítése</button>
+      </div>
+    </div>
+
+
+    <div style="height:10px"></div>
+
+
+    <label>Gyors gombok</label>
+    <div class="gridBtns" id="quickBtns"></div>
+
+
+    <div style="height:10px"></div>
+
+
+    <label for="search">Keresés a súgóban (opcionális)</label>
+    <input id="search" placeholder="pl. PDF, RFID, elfogadás, szűrés..." />
+    <div class="muted" style="margin-top:6px">
+      Tipp: a kiválasztott súgó szövegében kiemeli a találatokat.
+    </div>
+  </div>
+
+
+  <div class="card">
+    <div class="muted" id="titleLine">Nincs kiválasztva oldal.</div>
+    <div style="height:8px"></div>
+    <pre id="out">Válassz egy oldalt fent, majd nyomd meg: „Súgó megjelenítése”.</pre>
+  </div>
+
+
+  <div class="muted">
+    Vissza a rendszerbe: <a href="index.html">Kezdőoldal</a>
+  </div>
+
+
+</main>
+
+
+<script>
+  (function () {
+
+    const IDS = ["help_nav_btn", "theme_toggle"];
+
+
+    function kill() {
+      for (const id of IDS) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+      }
+    }
+
+
+
+    kill();
+
+
+    const mo = new MutationObserver(() => kill());
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+
+    let n = 0;
+    const t = setInterval(() => {
+      kill();
+      n++;
+      if (n > 30) clearInterval(t); // ~3 sec
+    }, 100);
+  })();
+</script>
+
+
+<script src="common_studio13.js"></script>
+
+
+<script>
+  // ===========================
+  // 1) Részletes súgó tartalom
+  // ===========================
+  const HELP = {
+    "index.html": {
+      title: "Kezdőoldal",
+      text:
+`KEZDŐOLDAL (KERET)
+
+
+Mire való?
+- Ez a rendszer fő kerete: innen éred el a menüt és innen töltődnek be az aloldalak (AJAX).
+
+
+Mit látsz itt?
+- Menü / navigáció a funkciókhoz
+- Általános információk, gyors műveletek (jogosultságtól függ)
+
+
+Tipikus műveletek:
+1) Menüből kiválasztasz egy funkciót (pl. RFID be / Kikérő)
+2) Az aloldal betölt a középső részbe (AJAX)
+3) Munka után vissza tudsz menni a kezdőoldalra
+
+
+Hibaelhárítás:
+- Ha „nem frissül” a tartalom: próbáld újranyitni a menüpontot vagy frissítsd az oldalt (F5).`
+    },
+
+
+    "sajat.html": {
+      title: "Saját adatok",
+      text:
+`SAJÁT ADATOK
+
+
+Mire való?
+- A saját felhasználói adataid és a saját eseményeid megtekintésére.
+
+
+Mit tartalmaz?
+- Saját név / email / azonosítók megjelenítése
+- Saját RFID be/ki események (KIBE) listája
+- Saját késések megjelenítése (ha van)
+
+
+Tippek:
+- Ha hiányos lista: frissítsd az oldalt / töltsd újra a listát (ha van frissítés gomb).
+- Ha rossz adat látszik: jelentkezz ki–be (session frissítés).`
+    },
+
+
+    "a.html": {
+      title: "Adatkereső",
+      text:
+`ADATKERESŐ (TANÁRI)
+
+
+Mire való?
+- Felhasználók keresése és alapadataik megtekintése (tanári jogosultság kell).
+
+
+Funkciók:
+- Keresés: név / OM / csoport (attól függően, mit használtok)
+- Találatok listázása
+- Részletek megnyitása (modal / popup)
+
+
+Hibaelhárítás:
+- Ha nincs találat: ellenőrizd a beírt formátumot (pl. OM szám pontosan).
+- Ha nem enged be: nincs meg a tanári role/jogosultság.`
+    },
+
+
+    "b.html": {
+      title: "Kikérő",
+      text:
+`KIKÉRŐ RENDSZER
+
+
+DIÁK OLDAL:
+- Kitöltöd: tanár, dátum, ok, aláíró
+- Beküldés után a kérelmed megjelenik a listában
+- PDF általában csak akkor elérhető, ha a státusz „ELFOGADVA”
+
+
+TANÁR OLDAL:
+- A hozzád érkezett kérelmek listája
+- Elfogadás / Elutasítás
+- Megjegyzés hozzáadása (ha van)
+- Előnézet: a kérelem dokumentumának megtekintése
+
+
+Tippek:
+- Ha PDF nem tölthető: nézd meg a státuszt (ELFOGADVA kell).
+- Ha nem látod a kérelmeket: lehet, hogy nem te vagy kijelölve tanárnak.`
+    },
+
+
+    "rfid.html": {
+      title: "RFID be",
+      text:
+`RFID BE (ÉRKEZÉS)
+
+
+Mire való?
+- Érkezés rögzítése RFID kártya leolvasásával.
+
+
+Lépések:
+1) RFID kártya leolvasása / kód beírása
+2) (Opcionális) „Suli kezdés” idő beállítása (ha van)
+3) Mentés → rendszer rögzíti a belépést
+
+
+Késés:
+- Ha az érkezés a sulikezdés után történik, a rendszer késést számolhat (percben).
+
+
+Gyakori hibák:
+- „Ismeretlen RFID”: a kártya nincs felvéve a rendszerbe / nincs hozzárendelve userhez.`
+    },
+
+
+    "rfidki.html": {
+      title: "RFID ki",
+      text:
+`RFID KI (TÁVOZÁS)
+
+
+Mire való?
+- Távozás rögzítése RFID kártya leolvasásával.
+
+
+Lépések:
+1) RFID kártya leolvasása / kód beírása
+2) Mentés → távozás rögzítése
+
+
+Tippek:
+- Ha valaki véletlenül kétszer „ki”-zik: admin oldalon/napi logban lehet korrigálni (ha van ilyen funkció).`
+    },
+
+
+    "keseses.html": {
+      title: "Késések",
+      text:
+`KÉSÉSEK (TANÁRI)
+
+
+Mire való?
+- Késések és KIBE események tanári áttekintése.
+
+
+Funkciók:
+- Lista: belépések/kilépések, késés perc (ha van)
+- Szűrés: név / RFID / dátum
+
+
+Tippek:
+- Ha túl sok adat: használj dátum szűrőt.
+- Ha rosszul számol késést: ellenőrizd a sulikezdés idő beállítást (ha van).`
+    },
+
+
+    "admin.html": {
+      title: "Admin panel",
+      text:
+`ADMIN PANEL (BOSS)
+
+
+Mire való?
+- Felhasználók kezelése.
+
+
+Tipikus funkciók:
+- Új user felvétele (ha van)
+- User adatok módosítása (név, email, csoport, role)
+- Törlés / tiltás (ha van)
+- Mentés + lista frissítése
+
+
+Figyelem:
+- Role/jogosultság változtatás után gyakran új bejelentkezés kell, hogy érvényesüljön.`
+    },
+
+
+    "naplozos.html": {
+      title: "Admin napló",
+      text:
+`ADMIN NAPLÓ (BOSS)
+
+
+Mire való?
+- Események naplózása és ellenőrzése.
+
+
+Mit tartalmazhat?
+- RFID be/ki események
+- Kikérő események (beküldés/elfogadás/elutasítás)
+- (Opcionális) törlés/javítás soronként
+
+
+Tippek:
+- Ha egy RFID esemény hibás: itt lehet visszakeresni és korrigálni (ha van törlés/javítás).`
+    },
+
+
+    "login.html": {
+      title: "Bejelentkezés",
+      text:
+`BEJELENTKEZÉS
+
+
+Lépések:
+1) Email / név megadása
+2) Jelszó megadása
+3) Belépés
+
+
+Gyakori hibák:
+- Rossz jelszó: próbáld újra / admin reset
+- Nem enged belépni: nincs ilyen user vagy le van tiltva
+- Ha belépés után visszadob: session/cookie gond → töröld a sütiket vagy próbálj privát ablakot.`
+    }
+  };
+
+
+  // ===========================
+  // 2) UI elemek
+  // ===========================
+  const pageSel   = document.getElementById("pageSel");
+  const out       = document.getElementById("out");
+  const titleLine = document.getElementById("titleLine");
+  const quickBtns = document.getElementById("quickBtns");
+  const search    = document.getElementById("search");
+
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;");
+  }
+
+
+  function highlight(text, q) {
+    if (!q) return escapeHtml(text);
+    const safe = escapeHtml(text);
+    const qq = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(qq, "gi");
+    return safe.replace(re, m => `<<H>>${m}<</H>>`)
+               .replaceAll("<<H>>","<mark>")
+               .replaceAll("<</H>>","</mark>");
+  }
+
+
+  function render() {
+    const p = pageSel.value;
+    const item = HELP[p];
+    const q = (search.value || "").trim();
+
+
+    if (!item) {
+      titleLine.textContent = "Nincs kiválasztva oldal.";
+      out.textContent = "Nincs súgó ehhez az oldalhoz.";
+      return;
+    }
+
+
+    titleLine.textContent = `Súgó: ${item.title} — ${p}`;
+    out.innerHTML = highlight(item.text, q);
+  }
+
+
+  function setNoAccessMessage(requestedPage) {
+    titleLine.textContent = "Nincs jogosultság";
+    out.textContent =
+      `Ehhez az oldalhoz nincs jogosultságod a súgóban: ${requestedPage}\n\n` +
+      `Válassz a listából egy olyan oldalt, amihez hozzáférsz.`;
+  }
+
+
+  function buildHelpPagesFromMenu() {
+    const hasCommon =
+      typeof menü_json !== "undefined" &&
+      typeof canSee === "function";
+
+
+    let allowed = [];
+
+
+    if (hasCommon) {
+      allowed = (menü_json || [])
+        .filter(it => it && typeof it.url === "string")
+        .filter(it => it.url.toLowerCase().endsWith(".html"))
+        .filter(it => canSee(it))
+        .map(it => it.url);
+    } else {
+      allowed = Object.keys(HELP);
+    }
+
+
+    if (!allowed.includes("login.html")) allowed.push("login.html");
+    allowed = allowed.filter(p => !!HELP[p]);
+
+
+    const seen = new Set();
+    allowed = allowed.filter(p => (seen.has(p) ? false : (seen.add(p), true)));
+
+
+    return allowed;
+  }
+
+
+  async function init() {
+    // plusz biztosíték: ha mégis bent lenne
+    const helpBtn = document.getElementById("help_nav_btn");
+    if (helpBtn) helpBtn.remove();
+    const themeBtn = document.getElementById("theme_toggle");
+    if (themeBtn) themeBtn.remove();
+
+
+    if (typeof loadUserRole === "function") {
+      await loadUserRole();
+    }
+
+
+    const pages = buildHelpPagesFromMenu();
+
+
+    pageSel.innerHTML = "";
+    quickBtns.innerHTML = "";
+
+
+    pages.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = `${HELP[p].title} — (${p})`;
+      pageSel.appendChild(opt);
+    });
+
+
+    pages.forEach(p => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = HELP[p].title;
+      b.onclick = () => { pageSel.value = p; render(); };
+      quickBtns.appendChild(b);
+    });
+
+
+    const params = new URLSearchParams(location.search);
+
+
+function normalizePageParam(v) {
+  v = String(v || "").trim();
+
+
+  // tördeljük le a hash-t, query-t, ha valaki ilyeneket ad át
+  v = v.split("#")[0].split("?")[0];
+
+
+  // ha /index vagy index jellegű
+  v = v.replace(/^\/+/, ""); // leading /
+
+
+  // ha csak "index" érkezik, legyen "index.html"
+  if (v && !v.toLowerCase().endsWith(".html")) v = v + ".html";
+
+
+  return v;
+}
+
+
+const requested = normalizePageParam(params.get("page")).toLowerCase();
+
+
+    if (requested) {
+      const match = pages.find(p => p.toLowerCase() === requested);
+
+
+      if (match) {
+        pageSel.value = match;
+        render();
+      } else {
+        if (pages.length) pageSel.value = pages[0];
+        setNoAccessMessage(requested);
+      }
+    } else {
+      if (pages.length) pageSel.value = pages[0];
+      render();
+    }
+
+
+    document.getElementById("showBtn").onclick = render;
+    search.addEventListener("input", render);
+  }
+
+
+  init();
+</script>
+
+
+</body>
+</html>
+

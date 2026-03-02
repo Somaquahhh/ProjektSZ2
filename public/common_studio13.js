@@ -45,13 +45,13 @@ var menü_json = [{
   "tip": 0,
   minRole: "Teachers"
 }, {
-  "text": "RFID be",
+  "text": "RFID belépés",
   "ikon": "",
   "url": "rfid.html",
   "tip": 0,
   minRole: "Teachers"
 }, {
-  "text": "RFID ki",
+  "text": "RFID kilépés",
   "ikon": "",
   "url": "rfidki.html",
   "tip": 0,
@@ -63,7 +63,7 @@ var menü_json = [{
   "tip": 0,
   minRole: "Students"
 }, {
-  "text": "Késéses",
+  "text": "Késések",
   "ikon": "",
   "url": "keseses.html",
   "tip": 0,
@@ -75,9 +75,15 @@ var menü_json = [{
   "tip": 0,
   minRole: "Students"
 },{
-  "text": "Naplo",
+  "text": "Napló",
   "ikon": "",
   "url": "naplozos.html",
+  "tip": 0,
+  minRole: "Boss"
+},{
+  "text": "Fejlesztői dokumentáció",
+  "ikon": "",
+  "url": "devdocs.html",
   "tip": 0,
   minRole: "Boss"
 }, {
@@ -149,7 +155,7 @@ function ajax_get(urlsor, hova, tipus, aszinkron) {
   } catch {}
 
 
-  // ✅ script cache, hogy ugyanazt a külső scriptet ne töltsük be kétszer
+
   window.__S13_loadedSrc = window.__S13_loadedSrc || new Set();
   window.__S13_loadedInline = window.__S13_loadedInline || new Set();
 
@@ -168,7 +174,7 @@ function ajax_get(urlsor, hova, tipus, aszinkron) {
 
 
   function hashInline(code) {
-    // egyszerű hash elég: hossz + első/utolsó 30 char
+
     const c = String(code || "");
     return `${c.length}:${c.slice(0,30)}:${c.slice(-30)}`;
   }
@@ -190,31 +196,28 @@ function ajax_get(urlsor, hova, tipus, aszinkron) {
       }
 
 
-      // ✅ 1) parseoljuk a teljes HTML-t, de megtartjuk a script tageket is, hogy mi döntsünk
+     
       const nodes = $.parseHTML(String(data), document, true) || [];
       const $wrap = $("<div></div>").append(nodes);
 
 
-      // ✅ 2) kivesszük a body tartalmat (ha full html jött)
+      
       const $body = $wrap.find("body");
       const $contentRoot = $body.length ? $body : $wrap;
 
 
-      // ✅ 3) összes script összegyűjtése (head+body)
+  
       const $scripts = $wrap.find("script");
 
 
-      // ✅ 4) a tartalomból kidobjuk a script tageket, hogy ne a jQuery futtassa automatikusan
+ 
       $contentRoot.find("script").remove();
 
 
-      // ✅ 5) HTML berakása a #main1-be
+ 
       $(hova).empty().append($contentRoot.contents());
 
 
-      // ✅ 6) Most MI futtatjuk a script-eket kontrolláltan:
-      //    - src-es script: csak ha nem skip és még nem volt betöltve
-      //    - inline script: egyszer fut (hash alapján)
       const loadPromises = [];
 
 
@@ -360,9 +363,7 @@ function myQuestion(ops) {
 }
 
 
-/* =========================================================
-   ✅ ÚJ: szerepkör magyarul
-   ========================================================= */
+
 function roleHu(role) {
   const r = String(role || "").trim().toLowerCase();
   if (r.includes("teacher")) return "Tanár";
@@ -372,18 +373,13 @@ function roleHu(role) {
 }
 
 
-/* =========================================================
-   ✅ ÚJ: Gyors műveletek generálása menüből
-   - csak ami látható az adott role-nak
-   - csak belső oldalak (tip 0 vagy 3 és .html)
-   - aktuális oldalt kihagyja
-   ========================================================= */
+
 function buildQuickActions() {
   const host = document.getElementById("sb_quick");
   if (!host) return;
 
 
-  // ✅ ha indexen belül AJAX-olunk, akkor az “aktuális oldal” a last_ajax_page
+
   let current = "";
   try {
     current = (sessionStorage.getItem("last_ajax_page") || "").toLowerCase();
@@ -400,7 +396,7 @@ function buildQuickActions() {
     .filter(it => String(it.url || "").toLowerCase() !== current);
 
 
-  // ✅ NEM <a href> hanem gomb, és mi döntjük el: AJAX vagy navigáció
+
   host.innerHTML = visible.map(it => {
     return `<button type="button" class="side-btn" data-url="${it.url}" data-tip="${it.tip}">${it.text}</button>`;
   }).join("") || `<div class="muted small">Nincs elérhető gyors művelet.</div>`;
@@ -420,7 +416,7 @@ function buildQuickActions() {
     const hasAjax = (typeof ajax_get === "function");
 
 
-    // ✅ ha index/layout oldalról kattintasz → AJAX a #main1-be
+   
     if (hasMain && hasAjax && (tip === 0)) {
       ajax_get(url, "#main1", 0, true);
       buildQuickActions(); // frissítjük, hogy az aktuális kimaradjon
@@ -434,12 +430,7 @@ function buildQuickActions() {
 }
 
 
-/* =========================================================
-   ✅ ÚJ: Bejelentkezés óta eltelt idő (timer)
-   - localStorage: login_ts
-   - ha nincs, de be van jelentkezve -> mostantól számol
-   - logout gomb lenyomásakor törli
-   ========================================================= */
+
 function formatDuration(ms) {
   ms = Math.max(0, ms);
   const total = Math.floor(ms / 1000);
@@ -489,10 +480,7 @@ function clearLoginTimer() {
 }
 
 
-/* =========================================================
-   ✅ ÚJ: Oldalsáv kitöltése /session alapján
-   (ha nincs oldalsáv a page-en, csendben nem csinál semmit)
-   ========================================================= */
+
 async function fillSidebarsFromSession() {
   const elName = document.getElementById("sb_name");
   const elRole = document.getElementById("sb_role");
@@ -551,15 +539,12 @@ async function fillSidebarsFromSession() {
 }
 
 
-/* =========================================================
-   ✅ ÚJ: Logout gomb esetén login_ts törlése
-   (index.html-ben van #logout_direct_button)
-   ========================================================= */
+
 function bindLogoutClear() {
   const btn = document.getElementById("logout_direct_button");
   if (!btn) return;
   btn.addEventListener("click", function () {
-    // már kattintáskor töröljük, a szerveres logout úgyis megy a te kódoddal
+    
     clearLoginTimer();
   }, { capture: true });
 }
@@ -572,22 +557,19 @@ function applyThemeFromStorage() {
 
 
 function ensureThemeToggleButton() {
-  // ha már van, ne duplázzuk
-  if (document.getElementById("theme_toggle")) return;
 
+  if (document.getElementById("theme_toggle")) return;
 
   const btn = document.createElement("button");
   btn.id = "theme_toggle";
   btn.type = "button";
-  btn.className = "theme-toggle-btn";
+  btn.className = "theme-toggle-btn ms-2";
   btn.title = "Téma váltás";
-
 
   function renderIcon() {
     const isLight = document.body.classList.contains("theme-light");
     btn.textContent = isLight ? "🌙" : "☀️";
   }
-
 
   btn.onclick = () => {
     const isLight = document.body.classList.toggle("theme-light");
@@ -595,10 +577,18 @@ function ensureThemeToggleButton() {
     renderIcon();
   };
 
-
-  document.body.appendChild(btn);
   applyThemeFromStorage();
   renderIcon();
+
+  
+  const loginUser = document.getElementById("login1_user");
+
+  if (loginUser && loginUser.parentElement) {
+    loginUser.parentElement.insertBefore(btn, loginUser.nextSibling);
+  } else {
+   
+    document.body.appendChild(btn);
+  }
 }
 
 
@@ -639,81 +629,45 @@ function ensureThemeToggleButton() {
   }
 })();
 
+(function(){
 
-/* =========================================================
-   ✅ OLDALFÜGGŐ SÚGÓ – AJAX + normál oldal BIZTOS
-   - AJAX eset: window.__S13_CURRENT_PAGE alapján
-   - Normál oldal: location.pathname alapján
-   ========================================================= */
-   (function () {
-    const HELP_BY_PAGE = {
-      "index.html": "Kezdőoldal\n– Fő menü és gyors műveletek",
-      "sajat.html": "Saját adatok\n– Saját felhasználói adatok / saját listák",
-      "a.html": "Adatkereső\n– Tanári jogosultság szükséges",
-      "b.html": "Kikérő\n– Diák: beküldés\n– Tanár: elbírálás",
-      "rfid.html": "RFID be\n– Kártya leolvasás = érkezés",
-      "rfidki.html": "RFID ki\n– Kártya leolvasás = távozás",
-      "keseses.html": "Késések\n– Tanári nézet",
-      "admin.html": "Admin panel\n– Felhasználók kezelése (Boss)",
-      "naplozos.html": "Admin napló\n– RFID + kikérő események (Boss)",
-      "login.html": "Bejelentkezés\n– Email/Név + jelszó",
+  function addHelpBtn(){
+  
+    // LOGIN OLDALON NE LEGYEN SÚGÓ
+    const current = location.pathname.split("/").pop().toLowerCase();
+    if(current === "login.html") return;
+  
+    if(document.getElementById("help_nav_btn")) return;
+  
+    const btn=document.createElement("button");
+    btn.id="help_nav_btn";
+    btn.textContent="❓ Súgó";
+    btn.type="button";
+  
+    btn.style.cssText=
+    "position:fixed;bottom:15px;right:15px;z-index:99999;" +
+    "padding:10px 14px;font-size:14px;font-weight:800;cursor:pointer;" +
+    "border-radius:14px;border:1px solid rgba(255,255,255,0.3);" +
+    "background:rgba(0,0,0,0.55);color:#fff;";
+  
+    btn.onclick=function(){
+      let p=(window.__S13_CURRENT_PAGE ||
+      sessionStorage.getItem("last_ajax_page") ||
+      location.pathname.split("/").pop() ||
+      "index.html");
+  
+      p=p.split("?")[0].split("#")[0];
+  
+      location.href="sugo.html?page="+encodeURIComponent(p);
     };
   
+    document.body.appendChild(btn);
+  }
   
-    function fileName(x) {
-      return (String(x || "")
-        .split("?")[0]
-        .split("#")[0]
-        .split("/")
-        .pop() || "").toLowerCase();
-    }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",addHelpBtn);
+  }else{
+    addHelpBtn();
+  }
   
-  
-    function getCurrentPage() {
-      // ✅ 1) AJAX: amit utoljára ajax_get betöltött
-      const ajaxFile = fileName(window.__S13_CURRENT_PAGE);
-      if (ajaxFile && ajaxFile.endsWith(".html")) return ajaxFile;
-  
-  
-      // ✅ 2) Normál oldal
-      const p = (location.pathname || "").toLowerCase();
-      if (p === "/index" || p.endsWith("/index")) return "index.html";
-      const real = fileName(p);
-      return real || "index.html";
-    }
-  
-  
-    function showHelp() {
-      const page = getCurrentPage();
-      const txt = HELP_BY_PAGE[page] || ("Ehhez az oldalhoz nincs súgó: " + page);
-      alert("SÚGÓ\n\n" + txt);
-    }
-  
-  
-    function initBtn() {
-      if (document.getElementById("help_btn")) return;
-  
-  
-      const btn = document.createElement("button");
-      btn.id = "help_btn";
-      btn.type = "button";
-      btn.textContent = "❓ Súgó";
-      btn.style.cssText =
-        "position:fixed;bottom:12px;right:12px;z-index:99999;padding:6px 10px;font-size:14px;cursor:pointer;";
-  
-  
-      btn.onclick = showHelp;
-      document.body.appendChild(btn);
-    }
-  
-  
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initBtn);
-    } else {
-      initBtn();
-    }
   })();
-  
-  
-  
-  

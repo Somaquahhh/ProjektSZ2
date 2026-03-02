@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Saját adatok</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,6 +11,109 @@
   <link rel="stylesheet" href="style.css">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
+
+  <script>
+
+    (function () {
+
+      function formatIrany(i) {
+        if (i === "in") return "be";
+        if (i === "out") return "ki";
+        return i || "";
+      }
+
+      function parseSqlDateTime(v) {
+        if (!v) return null;
+        const s = String(v).trim();
+
+        // ISO (pl. 2026-02-27T10:30:00Z)
+        const iso = new Date(s);
+        if (!isNaN(iso.getTime())) return iso;
+
+        // MySQL DATETIME: "YYYY-MM-DD HH:MM:SS" vagy "YYYY-MM-DD HH:MM"
+        const m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+        if (!m) return null;
+
+        const y = Number(m[1]), mo = Number(m[2]) - 1, d = Number(m[3]);
+        const h = Number(m[4]), mi = Number(m[5]), se = Number(m[6] || 0);
+        return new Date(y, mo, d, h, mi, se); // helyi idő
+      }
+
+      function formatHuDateTime(v) {
+        const d = parseSqlDateTime(v);
+        return d ? d.toLocaleString("hu-HU") : (v ? String(v) : "-");
+      }
+
+      async function loadSessionAndData() {
+        try {
+          // ---- SESSION ----
+          const res = await fetch("/session", { credentials: "include", cache: "no-store" });
+          const text = await res.text();
+
+          if (!res.ok) {
+            window.location.href = "login.html";
+            return;
+          }
+
+          let session;
+          try {
+            session = JSON.parse(text);
+          } catch {
+            window.location.href = "login.html";
+            return;
+          }
+
+          if (!session.bejelentkezett || !session.user) {
+            window.location.href = "login.html";
+            return;
+          }
+
+          document.getElementById("nev").textContent = session.user.NEV ?? "-";
+          document.getElementById("email").textContent = session.user.EMAIL ?? "-";
+          document.getElementById("om").textContent = session.user.OM ?? "-";
+
+          // ---- KIBE LEKÉRÉS ----
+          const body = document.getElementById("kibe_body");
+          body.innerHTML = `<tr><td colspan="3">Betöltés...</td></tr>`;
+
+          const kibeRes = await fetch("/api/my/kibe", { credentials: "include", cache: "no-store" });
+
+          if (!kibeRes.ok) {
+            body.innerHTML = `<tr><td colspan="3">Hiba a lista betöltésekor (${kibeRes.status})</td></tr>`;
+            return;
+          }
+
+          const kibeRows = await kibeRes.json();
+          body.innerHTML = "";
+
+          if (!Array.isArray(kibeRows) || kibeRows.length === 0) {
+            body.innerHTML = `<tr><td colspan="3">Még nem történt be- vagy kijelentkezés</td></tr>`;
+            return;
+          }
+
+          for (const row of kibeRows) {
+            const tr = document.createElement("tr");
+            const datum = formatHuDateTime(row.DATUMIDO);
+
+            tr.innerHTML = `
+              <td>${datum}</td>
+              <td>${formatIrany(row.DIRECTION)}</td>
+              <td>${row.RFID_POZ ?? "-"}</td>
+            `;
+
+            body.appendChild(tr);
+          }
+
+        } catch (err) {
+          window.location.href = "login.html";
+        }
+      }
+
+      document.getElementById("frissitBtn").addEventListener("click", loadSessionAndData);
+      loadSessionAndData();
+
+    })();
+  </script>
 </head>
 
 <body>
@@ -67,85 +170,6 @@
     </div>
   </div>
 
-  <script>
-
-    (function () {
-
-      function formatIrany(i) {
-        if (i === "in") return "be";
-        if (i === "out") return "ki";
-        return i || "";
-      }
-
-      async function loadSessionAndData() {
-        try {
-          // ---- SESSION ----
-          const res = await fetch("/session", { credentials: "include", cache: "no-store" });
-          const text = await res.text();
-
-          if (!res.ok) {
-            window.location.href = "login.html";
-            return;
-          }
-
-          let session;
-          try {
-            session = JSON.parse(text);
-          } catch {
-            window.location.href = "login.html";
-            return;
-          }
-
-          if (!session.bejelentkezett || !session.user) {
-            window.location.href = "login.html";
-            return;
-          }
-
-          document.getElementById("nev").textContent = session.user.NEV ?? "-";
-          document.getElementById("email").textContent = session.user.EMAIL ?? "-";
-          document.getElementById("om").textContent = session.user.OM ?? "-";
-
-          // ---- KIBE LEKÉRÉS ----
-          const body = document.getElementById("kibe_body");
-          body.innerHTML = `<tr><td colspan="3">Betöltés...</td></tr>`;
-
-          const kibeRes = await fetch("/api/my/kibe", { credentials: "include", cache: "no-store" });
-
-          if (!kibeRes.ok) {
-            body.innerHTML = `<tr><td colspan="3">Hiba a lista betöltésekor (${kibeRes.status})</td></tr>`;
-            return;
-          }
-
-          const kibeRows = await kibeRes.json();
-          body.innerHTML = "";
-
-          if (!Array.isArray(kibeRows) || kibeRows.length === 0) {
-            body.innerHTML = `<tr><td colspan="3">Még nem történt be- vagy kijelentkezés</td></tr>`;
-            return;
-          }
-
-          for (const row of kibeRows) {
-            const tr = document.createElement("tr");
-            const datum = row.DATUMIDO ? new Date(row.DATUMIDO).toLocaleString("hu-HU") : "-";
-
-            tr.innerHTML = `
-              <td>${datum}</td>
-              <td>${formatIrany(row.DIRECTION)}</td>
-              <td>${row.RFID_POZ ?? "-"}</td>
-            `;
-
-            body.appendChild(tr);
-          }
-
-        } catch (err) {
-          window.location.href = "login.html";
-        }
-      }
-
-      document.getElementById("frissitBtn").addEventListener("click", loadSessionAndData);
-      loadSessionAndData();
-
-    })();
-  </script>
+ 
 </body>
 </html>

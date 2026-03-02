@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Studio13 – Fejlesztői dokumentáció </title>
+  
+
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  <!-- Projekt stílus -->
+  <link href="/style.css" rel="stylesheet">
+  <link rel="icon" href="/favicon-32x32.png" type="image/png">
+
+
+  <style>
+    .doc-wrap { max-width: 1100px; margin: 0 auto; }
+    .toc a { text-decoration: none; }
+    code, pre { font-size: 0.92rem; }
+    pre { background: rgba(0,0,0,0.12); border: 1px solid var(--border); border-radius: 12px; padding: 12px; overflow:auto; }
+    .k { font-weight: 700; }
+    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: .85rem; }
+    .pill-ok { background: rgba(34,197,94,0.15); }
+    .pill-warn { background: rgba(245,158,11,0.15); }
+    .pill-bad { background: rgba(239,68,68,0.15); }
+    .muted { color: var(--text-muted); }
+    .hr { height: 1px; background: var(--border); margin: 18px 0; }
+    .anchor { scroll-margin-top: 90px; }
+  </style>
+</head>
+
+
+<body>
+  <div class="app-wrap doc-wrap">
+    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-2">
+      <div>
+        <h1 class="m-0">Studio13 – fejlesztői dokumentáció</h1>
+        <div class="muted">Ez az oldal a projekt működését, felépítését, jogosultságait, API-ját és adatbázisát írja le.</div>
+      </div>
+      <div class="d-flex gap-2">
+        
+        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Nyomtatás</button>
+      </div>
+    </div>
+
+
+    <div class="app-card">
+      <div class="row g-3">
+        <div class="col-12 col-lg-7">
+          <h5 class="mb-2">Gyors összefoglaló</h5>
+          <ul class="mb-0">
+            <li><span class="k">Backend:</span> Node.js + Express (v5), express-session, MySQL (mysql driver).</li>
+            <li><span class="k">Frontend:</span> statikus HTML oldalak Bootstrap + jQuery alapon, közös segédfájl: <code>common_studio13.js</code>.</li>
+            <li><span class="k">Auth:</span> session cookie (1 óra). Oldalak és API végpontok bejelentkezéshez kötöttek.</li>
+            <li><span class="k">Szerepkörök:</span> Students, Teachers, Boss. Oldal-hozzáférés és menü ezek szerint szűrődik.</li>
+          </ul>
+        </div>
+        <div class="col-12 col-lg-5">
+          <h5 class="mb-2">Tartalomjegyzék</h5>
+          <div class="toc small">
+            <div><a href="#arch">1. Architektúra</a></div>
+            <div><a href="#setup">2. Indítás / fejlesztői környezet</a></div>
+            <div><a href="#roles">3. Jogosultságok és védelem</a></div>
+            <div><a href="#pages">4. Oldalak (public)</a></div>
+            <div><a href="#api">5. API dokumentáció</a></div>
+            <div><a href="#db">6. Adatbázis (táblák és mezők)</a></div>
+            <div><a href="#frontend">7. Frontend közös logika (common_studio13.js)</a></div>
+            <div><a href="#troubleshooting">8. Hibakeresés</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="hr"></div>
+
+
+    <!-- 1) Architektúra -->
+    <section id="arch" class="anchor">
+      <h2>1. Architektúra</h2>
+      <div class="app-card">
+        <ul>
+          <li><span class="k">Szerver belépési pont:</span> <code>std13.js</code> (Express app).</li>
+          <li><span class="k">DB modul:</span> <code>datamodule_mysql.js</code> – pool alapú MySQL kapcsolat + egységes JSON válaszformátum.</li>
+          <li><span class="k">Statikus tartalom:</span> <code>public/</code> alatt HTML/CSS/JS (az Express innen szolgálja ki).</li>
+        </ul>
+
+
+        <h6 class="mt-3">Fő adatfolyam</h6>
+        <ol>
+          <li>Felhasználó belép a <code>/login.html</code> oldalon → <code>POST /login</code></li>
+          <li>Sikeres login esetén session létrejön (<code>express-session</code>)</li>
+          <li>Az oldalak többsége csak sessionnel elérhető (HTML guard + API middleware)</li>
+          <li>Frontend <code>fetch</code>/<code>$.ajax</code> hívásokkal éri el a <code>/api/*</code> végpontokat</li>
+        </ol>
+      </div>
+    </section>
+
+
+    <div class="hr"></div>
+
+
+    <!-- 2) Setup -->
+    <section id="setup" class="anchor">
+      <h2>2. Indítás / fejlesztői környezet</h2>
+      <div class="app-card">
+        <h6>Függőségek</h6>
+        <ul>
+          <li><code>express</code>, <code>express-session</code>, <code>mysql</code> (lásd: <code>package.json</code>)</li>
+          <li>Node.js ajánlott: <span class="pill pill-warn">>= 18</span> (a lockfile szerint)</li>
+        </ul>
+
+
+        <h6 class="mt-3">Telepítés</h6>
+        <pre><code>npm install</code></pre>
+
+
+        <h6 class="mt-3">Indítás</h6>
+        <div class="muted mb-2">A repóban a <code>package.json</code> alapból nem tartalmaz <code>start</code> scriptet; a szerver belépési pont a <code>std13.js</code>.</div>
+        <pre><code>node std13.js
+# ezután: http://localhost:3000</code></pre>
+
+
+        <h6 class="mt-3">Könyvtár-struktúra (logikai)</h6>
+        <pre><code>.
+├─ std13.js                 # Express szerver
+├─ datamodule_mysql.js       # MySQL pool + DB.query wrapper
+├─ package.json
+└─ public/
+   ├─ index.html
+   ├─ login.html
+   ├─ a.html / b.html / ...
+   ├─ common_studio13.js
+   ├─ style.css
+   └─ image/ ...</code></pre>
+      </div>
+    </section>
+
+
+    <div class="hr"></div>
+
+
+    <!-- 3) Roles -->
+    <section id="roles" class="anchor">
+      <h2>3. Jogosultságok és védelem</h2>
+      <div class="app-card">
+        <h6>Szerepkörök</h6>
+        <ul>
+          <li><span class="pill pill-ok">Students</span> – alap jogosultság</li>
+          <li><span class="pill pill-ok">Teachers</span> – tanári funkciók</li>
+          <li><span class="pill pill-ok">Boss</span> – admin / napló funkciók</li>
+        </ul>
+
+
+        <h6 class="mt-3">Oldal-hozzáférés (PAGE_MIN_ROLE)</h6>
+        <ul class="mb-0">
+          <li><span class="k">Students:</span> <code>/index.html</code>, <code>/sajat.html</code>, <code>/b.html</code></li>
+          <li><span class="k">Teachers:</span> <code>/a.html</code>, <code>/rfid.html</code>, <code>/rfidki.html</code>, <code>/keseses.html</code></li>
+          <li><span class="k">Boss:</span> <code>/admin.html</code>, <code>/naplozos.html</code></li>
+          <li><span class="k">Publikus:</span> <code>/login.html</code></li>
+        </ul>
+
+
+        <h6 class="mt-3">Middleware logika röviden</h6>
+        <ul>
+          <li><span class="k">authMiddleware</span>: ha nincs session → API-nál <code>401</code>, HTML-nél redirect <code>/login.html</code>.</li>
+          <li><span class="k">guardHtmlByRole</span>: HTML oldalaknál role-check; Boss mindent láthat, egyébként minimum szerepkör kell.</li>
+          <li><span class="k">requireBoss</span>: <code>/api/admin/*</code> csak Boss.</li>
+        </ul>
+
+
+        <h6 class="mt-3">Session adatok</h6>
+        <pre><code>// sikeres login után a sessionben:
+req.session.ID_USER
+req.session.NEV
+req.session.EMAIL
+req.session.CSOPORT   // normalizálva (Bosses → Boss, trailing ';' levágva)
+req.session.OM
+req.session.MOST      // timestamp</code></pre>
+      </div>
+    </section>
+
+
+    <div class="hr"></div>
+
+
+    <!-- 4) Pages -->
+    <section id="pages" class="anchor">
+      <h2>4. Oldalak (public)</h2>
+      <div class="app-card">
+        <div class="row g-3">
+          <div class="col-12 col-lg-6">
+            <h6>Fő oldalak</h6>
+            <ul>
+              <li><span class="k">login.html</span> – belépés, <code>POST /login</code>, session ellenőrzés: <code>GET /session</code>.</li>
+              <li><span class="k">index.html</span> – fő keret, menü + AJAX betöltés <code>#main1</code>-be (a menü pontok több oldalt fragmentként töltenek be).</li>
+              <li><span class="k">sajat.html</span> – saját session adatok + saját <code>kibe</code> események listája: <code>GET /api/my/kibe</code>.</li>
+            </ul>
+          </div>
+          <div class="col-12 col-lg-6">
+            <h6>Tanári / admin oldalak</h6>
+            <ul>
+              <li><span class="k">a.html</span> – adatkereső (users lista) → <code>POST /asd</code>.</li>
+              <li><span class="k">b.html</span> – Kikérő: diák beküld / tanár elbírál. API: <code>/api/kikero*</code>, <code>/api/tanarok</code>.</li>
+              <li><span class="k">rfid.html</span> – beléptetés (direction=in), API: <code>GET /api/rfid/event</code>.</li>
+              <li><span class="k">rfidki.html</span> – kiléptetés (direction=out), API: <code>GET /api/rfid/event</code>.</li>
+              <li><span class="k">keseses.html</span> – késések listája + szűrők, API: <code>POST /api/kibe_simple</code>.</li>
+              <li><span class="k">admin.html</span> – user CRUD (Boss), API: <code>/api/admin/users</code>.</li>
+              <li><span class="k">naplozos.html</span> – admin napló (Boss), API: <code>/api/admin/kibe</code>, <code>/api/admin/kikero</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <div class="hr"></div>
+
+
+    <!-- 5) API -->
+    <section id="api" class="anchor">
+      <h2>5. API dokumentáció</h2>
+      <div class="app-card">
+        <div class="mb-2">
+          <span class="pill pill-ok">Mindegyik API endpoint sessionhöz kötött</span>
+          <span class="pill pill-warn ms-2">Kivéve: /login, /session</span>
+        </div>
+
+
+        <h5 class="mt-3">5.1 Auth</h5>
+
+
+        <h6>POST /login</h6>
+        <div class="muted">Body: <code>{ user, psw }</code> (user = email VAGY név). Jelszó ellenőrzés: <code>MD5(psw)</code>.</div>
+        <pre><code>// request
+POST /login
+Content-Type: application/json
+
+
+{ "user": "valaki@pelda.hu", "psw": "titok" }
+
+
+// response (DB wrapper formátum)
+{ "count": 1, "rows": [ { "ID_USER": 1, "NEV": "...", "CSOPORT": "Students", "EMAIL": "...", "OM": "..." } ], "tip": "info", "text": 0 }</code></pre>
+
+
+        <h6>GET /session</h6>
+        <pre><code>// ha nincs login:
+{ "bejelentkezett": false }
+
+
+// ha van login:
+{
+  "bejelentkezett": true,
+  "user": { "ID_USER": 1, "NEV": "...", "EMAIL": "...", "CSOPORT": "Students", "OM": "..." }
+}</code></pre>
+
+
+        <h6>POST /logout</h6>
+        <pre><code>// response:
+"Sikeres kijelentkezés."</code></pre>
+
+
+        <h6>GET /api/me</h6>
+        <div class="muted">Gyors role-check (admin felületek használják).</div>
+        <pre><code>{ "id": 1, "role": "Boss" }</code></pre>
+
+
+        <div class="hr"></div>
+
+
+        <h5>5.2 Tanárok</h5>
+        <h6>GET /api/tanarok</h6>
+        <div class="muted">Tanári kikérőnél a választólistához.</div>
+        <pre><code>{ "count": 12, "rows": [ { "id": 7, "nev": "Név" }, ... ] }</code></pre>
+
+
+        <div class="hr"></div>
+
+
+        <h5>5.3 Kikérő modul</h5>
+
+
+        <h6>POST /api/kikero</h6>
+        <div class="muted">Diák kikérő beküldése.</div>
+        <pre><code>// request
+{
+  "idTanar": 12,
+  "ok": "Foglalkozás",
+  "nap": "2026-02-23",
+  "reszletek": "... (opcionális)",
+  "kuldoNev": "aláíró név"  // frontend validálja, DB nem használja
+}
+
+
+// response
+{ "ok": true }</code></pre>
+
+
+        <h6>GET /api/kikero/diak</h6>
+        <div class="muted">Bejelentkezett diáknak a saját kikérői (limit 200).</div>
+        <pre><code>{ "count": 2, "rows": [
+  {
+    "ID_KIKERO": 101,
+    "ID_TANAR": 12,
+    "TANAR_NEV": "...",
+    "OK": "...",
+    "RESZLETEK": "...",
+    "NAP": "2026-02-23",
+    "LETREHOZVA": "2026-02-22T...",
+    "ALLAPOT": "UJ|ELFOGADVA|ELUTASITVA",
+    "DONTES_IDO": null,
+    "DONTES_MEGJEGYZES": null
+  }
+] }</code></pre>
+
+
+        <h6>GET /api/kikero/tanar</h6>
+        <div class="muted">Bejelentkezett tanárnak a neki küldött kikérők (limit 200).</div>
+        <pre><code>{ "count": 5, "rows": [
+  {
+    "ID_KIKERO": 101,
+    "ID_KERO": 55,
+    "KULDO_NEV": "diák neve",
+    "OK": "...",
+    "RESZLETEK": "...",
+    "NAP": "2026-02-23",
+    "LETREHOZVA": "...",
+    "ALLAPOT": "UJ|ELFOGADVA|ELUTASITVA"
+  }
+] }</code></pre>
+
+
+        <h6>POST /api/kikero/allapot</h6>
+        <div class="muted">Tanári elbírálás. Csak akkor módosít, ha a kikérő a tanárhoz tartozik és <code>ALLAPOT='UJ'</code>.</div>
+        <pre><code>// request
+{ "idKikero": 101, "allapot": "ELFOGADVA", "megjegyzes": "... (opcionális)" }
+
+
+// response
+{ "ok": true }</code></pre>
+
+
+        <div class="hr"></div>
+
+
+        <h5>5.4 RFID + kibe modul</h5>
+
+
+        <h6>GET /api/rfid</h6>
+        <div class="muted">RFID kódhoz tartozó user gyors lekérése.</div>
+        <pre><code>/api/rfid?kod=RFID123
+
+
+// response
+{ "ID_USER": 1, "NEV": "...", "EMAIL": "...", "OM": "..." }</code></pre>
+
+
+        <h6>GET /api/rfid/event</h6>
+        <div class="muted">RFID esemény rögzítése a <code>kibe</code> táblába.</div>
+        <pre><code>/api/rfid/event?
+  kod=RFID123
+  &direction=in|out
+  &graceHours=0
+  &start=07:50
+  &end=16:00
+
+
+// response (példa)
+{
+  "ID_USER": 1,
+  "NEV": "...",
+  "EMAIL": "...",
+  "OM": "...",
+  "saved": true,
+  "direction": "in",
+  "graceHours": 0,
+  "shift": { "start": "07:50", "end": "16:00" },
+  "status": "ok|late|early_leave",
+  "diffMinutes": 7,
+  "kesesPerc": 7
+}</code></pre>
+        <div class="muted">Megjegyzés: késés perc csak belépésnél (<code>direction=in</code>) kerül mentésre, kilépésnél <code>0</code>.</div>
+
+
+        <h6>GET /api/my/kibe</h6>
+        <div class="muted">Saját be/ki események (dátum szerint csökkenő).</div>
+        <pre><code>[ { "ID_KIBE": 1, "DIRECTION": "in", "RFID_POZ": "RFID123", "DATUMIDO": "..." }, ... ]</code></pre>
+
+
+        <h6>GET /api/minden_keses</h6>
+        <div class="muted">Összes késés (csak azok, ahol <code>KESES_PERC &gt; 0</code>).</div>
+        <pre><code>[ { "NEV": "...", "OM": "...", "DATUMIDO": "...", "KESES_PERC": 5 }, ... ]</code></pre>
+
+
+        <h6>POST /api/kibe_simple</h6>
+        <div class="muted">Kompatibilitási endpoint: <span class="k">STRING</span> JSON-t küld vissza (keseses.html használja). Limit: 1000 sor.</div>
+        <pre><code>// response: "{\"count\":...,\"rows\":[...]}"  (string)
+// vagy a frontend oldalon JSON.parse után:
+{ "rows": [ { "ID_KIBE":..., "NEV":..., "DATUMIDO":..., "DIRECTION":..., "RFID_POZ":..., "KESES_PERC":... }, ... ] }</code></pre>
+
+
+        <div class="hr"></div>
+
+
+        <h5>5.5 Admin API (Boss)</h5>
+
+
+        <h6>GET /api/admin/users</h6>
+        <pre><code>{ "rows": [ { "ID_USER": 1, "NEV": "...", "EMAIL": "...", "CSOPORT": "Students" }, ... ] }</code></pre>
+
+
+        <h6>POST /api/admin/users</h6>
+        <pre><code>// request
+{ "nev": "...", "email": "...", "csoport": "Students|Teachers|Boss", "jelszo": "plain" }
+
+
+// response
+{ "ok": true }</code></pre>
+
+
+        <h6>PUT /api/admin/users/:id</h6>
+        <pre><code>// request
+{ "nev": "...", "email": "...", "csoport": "Students|Teachers|Boss" }
+
+
+// response
+{ "ok": true }</code></pre>
+
+
+        <h6>DELETE /api/admin/users/:id</h6>
+        <pre><code>{ "ok": true }</code></pre>
+
+
+        <h6>GET /api/admin/kibe</h6>
+        <div class="muted">RFID napló (kibe), limit 2000.</div>
+        <pre><code>{ "count": 2000, "rows": [ { "ID_KIBE":..., "NEV":..., "DATUMIDO":..., "DIRECTION":..., "RFID_POZ":..., "KESES_PERC":... }, ... ] }</code></pre>
+
+
+        <h6>DELETE /api/admin/kibe/:id</h6>
+        <pre><code>{ "ok": true }</code></pre>
+
+
+        <h6>GET /api/admin/kikero</h6>
+        <div class="muted">Kikérő napló admin nézet (limit 1000).</div>
+        <pre><code>{ "count": 1000, "rows": [ { "ID_KIKERO":..., "DIAK_NEV":..., "TANAR_NEV":..., "NAP":..., "OK":..., "ALLAPOT":... }, ... ] }</code></pre>
+
+
+        <h6>DELETE /api/admin/kikero/:id</h6>
+        <pre><code>{ "ok": true }</code></pre>
+      </div>
+    </section>
+
+
+    <div class="hr"></div>
+
+
+    <!-- 6) DB -->
+    <section id="db" class="anchor">
+      <h2>6. Adatbázis (táblák és mezők)</h2>
+    
+      <h5>6.1 users</h5>
+      <div class="muted">
+        Felhasználók táblája. Bejelentkezés: <code>EMAIL</code> vagy <code>NEV</code> + <code>MD5(PASSWORD)</code>.
+        RFID azonosítás: <code>RFID</code> mező alapján.
+      </div>
+      <ul>
+        <li><span class="k">ID_USER</span> (PK)</li>
+        <li><span class="k">LOGIN</span> (admin felületen létrehozáskor kötelező)</li>
+        <li><span class="k">NEV</span></li>
+        <li><span class="k">EMAIL</span></li>
+        <li>
+          <span class="k">CSOPORT</span>
+          (Students | Teachers | Boss
+          <span class="muted">– előfordulhat Bosses vagy a végén ';', a backend normalizálja</span>)
+        </li>
+        <li><span class="k">PASSWORD</span> (MD5 hash)</li>
+        <li><span class="k">OM</span> (string/number; admin update-ben 11 számjegy ellenőrzés van)</li>
+        <li><span class="k">RFID</span> (RFID kód; <code>/api/rfid</code> és <code>/api/rfid/event</code> ezt használja)</li>
+        <li><span class="k">DATUMIDO</span> (timestamp; user létrehozáskor <code>NOW()</code>)</li>
+      </ul>
+    
+      <h5 class="mt-3">6.2 kibe</h5>
+      <div class="muted">
+        RFID belépés/kilépés események táblája. Az <code>/api/rfid/event</code> ide szúr be rekordot.
+      </div>
+      <ul>
+        <li><span class="k">ID_KIBE</span> (PK)</li>
+        <li><span class="k">ID_USER</span> (FK → users.ID_USER)</li>
+        <li><span class="k">DATUMIDO</span> (timestamp; jellemzően DEFAULT NOW())</li>
+        <li><span class="k">DIRECTION</span> ('in' | 'out')</li>
+        <li><span class="k">RFID_POZ</span> (a leolvasott RFID kód)</li>
+        <li>
+          <span class="k">KESES_PERC</span>
+          (int; csak <code>direction='in'</code> esetén töltjük, különben 0)
+        </li>
+      </ul>
+    
+      <h5 class="mt-3">6.3 kikero</h5>
+      <div class="muted">
+        Kikérő kérések táblája (diák → tanár). A tanár az állapotot <code>/api/kikero/allapot</code>-tal állítja.
+      </div>
+      <ul>
+        <li><span class="k">ID_KIKERO</span> (PK)</li>
+        <li><span class="k">ID_KERO</span> (FK → users.ID_USER, a diák)</li>
+        <li><span class="k">ID_TANAR</span> (FK → users.ID_USER, a tanár)</li>
+        <li><span class="k">NAP</span> (date / varchar)</li>
+        <li><span class="k">OK</span> (varchar)</li>
+        <li><span class="k">RESZLETEK</span> (text, nullable)</li>
+        <li><span class="k">ALLAPOT</span> (UJ | ELFOGADVA | ELUTASITVA; tipikusan default 'UJ')</li>
+        <li><span class="k">LETREHOZVA</span> (timestamp; tipikusan DEFAULT NOW())</li>
+        <li><span class="k">DONTES_IDO</span> (timestamp, nullable)</li>
+        <li><span class="k">DONTES_MEGJEGYZES</span> (text, nullable)</li>
+      </ul>
+    
+      <h5 class="mt-3">6.4 naplo_audit</h5>
+      <div class="muted">
+        Audit napló tábla. A backend <code>auditLog()</code> helperrel ide ír (belépés, kijelentkezés, admin törlés/módosítás/létrehozás).
+      </div>
+      <ul class="mb-0">
+        <li><span class="k">ID_NAPLO</span> (PK)</li>
+        <li><span class="k">DATUM_IDO</span> (timestamp; tipikusan DEFAULT NOW())</li>
+        <li><span class="k">FELHASZNALO_ID</span> (int, nullable; sessionből)</li>
+        <li><span class="k">FELHASZNALO_NEV</span> (string, nullable; sessionből)</li>
+        <li><span class="k">MUVELET</span> (string; pl. BELEPES, KIJELENTKEZES, TORLES, MODOSITAS, LETREHOZAS)</li>
+        <li><span class="k">OBJEKTUM</span> (string; pl. auth, users, kibe, kikero)</li>
+        <li><span class="k">OBJEKTUM_ID</span> (int/string, nullable; pl. érintett rekord ID-ja)</li>
+        <li><span class="k">RESZLETEK</span> (text, nullable; extra infó JSON/string formában)</li>
+        <li><span class="k">IP_CIM</span> (string; kérés IP)</li>
+      </ul>
+    </section>
+
+    <div class="hr"></div>
+
+
+    <!-- 7) Frontend common -->
+    <section id="frontend" class="anchor">
+      <h2>7. Frontend közös logika (common_studio13.js)</h2>
+      <div class="app-card">
+        <h6>Funkciók</h6>
+        <ul>
+          <li><span class="k">Role-alapú menüszűrés</span>: <code>/session</code> alapján állítja be a <code>USER_ROLE</code>-t, és csak a megfelelő menüpontokat rendereli.</li>
+          <li><span class="k">Menü generátor</span>: <code>menü_json</code> → <code>#menu1_ul</code> elemek.</li>
+          <li><span class="k">AJAX HTML betöltés</span>: <code>ajax_get(url, "#main1", 0, true)</code>.
+            Külön kezeli a <code>&lt;script&gt;</code> tageket (dupla betöltés ellen cache-eli a külső script src-eket).</li>
+          <li><span class="k">Toast üzenetek</span>: <code>mySend({text, tip, mp})</code> (Bootstrap Toast).</li>
+          <li><span class="k">Oldalfüggő súgó</span>: jobb alsó sarok <code>❓ Súgó</code> gomb; AJAX esetben is felismeri az aktuális oldalt.</li>
+        </ul>
+
+
+        <h6 class="mt-3">AJAX + script kezelés miért fontos?</h6>
+        <div class="muted">
+          Az <code>index.html</code> keretből több oldal fragmentként töltődik be a <code>#main1</code>-be. Ilyenkor a DOM-ba bekerülő inline script-eket kontrolláltan kell futtatni,
+          és a külső script-eket nem szabad többször betölteni.
+        </div>
+      </div>
+    </section>
+
+
+    <div class="hr"></div>
+
+
+
+   
+
+
+    <!-- 9) Troubleshooting -->
+    <section id="troubleshooting" class="anchor">
+      <h2>8. Hibakeresés</h2>
+      <div class="app-card">
+        <h6>Gyakori hibák</h6>
+        <ul>
+          <li><span class="k">401 / 403</span> API-n: nincs session vagy nincs jogosultság. Ellenőrizd: <code>GET /session</code> és role.</li>
+          <li><span class="k">Modal eltűnik AJAX betöltésnél</span>: <code>a.html</code> már kezeli (modal áthelyezése <code>document.body</code>-ba megnyitás előtt).</li>
+          <li><span class="k">keseses.html nem tölt adatot</span>: az endpoint <code>/api/kibe_simple</code> POST; ellenőrizd a sessiont.</li>
+          <li><span class="k">RFID event hibák</span>: rossz <code>HH:MM</code> formátum (<code>start/end</code>), hiányzó <code>kod</code>, rossz <code>direction</code>.</li>
+        </ul>
+
+
+        <h6 class="mt-3">Hasznos ellenőrzések</h6>
+        <pre><code># session állapot
+curl -i http://localhost:3000/session
+
+
+# role
+curl -i http://localhost:3000/api/me
+
+
+# server logok: std13.js + datamodule_mysql.js konzolra írja a SQL-t</code></pre>
+      </div>
+    </section>
+
+
+    <div class="mt-4 mb-5 muted small">
+      Utolsó frissítés: <span id="buildStamp"></span>
+    </div>
+
+
+  </div>
+
+
+  <script>
+    // timestamp
+    document.getElementById('buildStamp').textContent = new Date().toLocaleString('hu-HU');
+
+
+    // light/dark toggle (egyszerű, a style.css változóira építve)
+   /* =========================================================
+   ✅ BIZTOS THEME TOGGLE (AJAX-BIZTOS, HIBAMENTES)
+   ========================================================= */
+
+(function () {
+
+function applyTheme() {
+
+  const toggle = document.getElementById("themeToggle");
+
+  // ❗ ha nincs az oldalon themeToggle, ne csináljon semmit
+  if (!toggle) return;
+
+  const isDark = document.body.classList.contains("dark");
+
+  if (isDark) {
+    toggle.textContent = "☀️";
+  } else {
+    toggle.textContent = "🌙";
+  }
+}
+
+function initThemeToggle() {
+
+  const toggle = document.getElementById("themeToggle");
+
+  if (!toggle) return;
+
+  toggle.onclick = function () {
+    document.body.classList.toggle("dark");
+    applyTheme();
+  };
+
+  applyTheme();
+}
+
+// ✅ DOM betöltés után
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initThemeToggle);
+} else {
+  initThemeToggle();
+}
+
+// ✅ AJAX után is újrainicializálás
+document.addEventListener("ajaxComplete", initThemeToggle);
+
+})();
+  </script>
+</body>
+</html>
+
+
