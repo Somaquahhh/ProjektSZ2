@@ -11,24 +11,58 @@
   <link rel="stylesheet" href="style.css">
   <script src="common_studio13.js"></script>
   <link rel="icon" href="/favicon-32x32.png" type="image/png">
+</head>
+
+<body>
+  <div class="app-wrap">
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+      <h2 class="m-0">RFID Kimenet</h2>
+    </div>
+
+    <div class="app-card">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">RFID kód:</label>
+          <input id="rfid_input" type="text" class="form-control" autocomplete="off" autofocus>
+        </div>
+
+        <!-- GOMB NEM KELL, KIVETTEM -->
+      </div>
+
+      <hr class="my-4">
+
+      <h4 class="mb-2">Eredmény:</h4>
+      <div id="eredmeny"></div>
+    </div>
+  </div>
 
   <script>
     (function () {
-      const rfidBtn = document.getElementById("rfid_btn");
       const rfidInput = document.getElementById("rfid_input");
       const eredmenyDiv = document.getElementById("eredmeny");
+      if (!rfidInput) return;
 
-      rfidBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
+      let busy = false;
+      let debounceTimer = null;
+      let clearTimer = null;
 
+      function focusRFID() {
+        rfidInput.focus({ preventScroll: true });
+        rfidInput.select();
+      }
+
+      focusRFID();
+      setTimeout(focusRFID, 200);
+      setTimeout(focusRFID, 700);
+
+      async function runSaveOut() {
         const kod = rfidInput.value.trim();
-        if (!kod) {
-          alert("Adj meg RFID kódot!");
-          return;
-        }
+        if (!kod) return;
+        if (busy) return;
+
+        busy = true;
 
         try {
-         
           const res = await fetch(
             `/api/rfid/event?kod=${encodeURIComponent(kod)}&direction=out`,
             { credentials: "include" }
@@ -50,43 +84,46 @@
             </div>
           `;
 
+          // következő kódhoz tisztítás + fókusz
           rfidInput.value = "";
-          rfidInput.focus();
+          focusRFID();
 
-        } catch (err) {
-          console.error(err);
+          // 15 mp után törli az eredményt
+          if (clearTimer) clearTimeout(clearTimer);
+          clearTimer = setTimeout(() => {
+            eredmenyDiv.innerHTML = "";
+            clearTimer = null;
+          }, 15000);
+
+        } catch (e) {
+          console.error(e);
           eredmenyDiv.innerHTML = "<p class='text-danger'>Hiba történt</p>";
+        } finally {
+          busy = false;
+        }
+      }
+
+      // 1) INPUT esemény: scanner gyorsan beír -> 120ms múlva automatikus mentés
+      rfidInput.addEventListener("input", () => {
+        // szóközök/törések kiszedése
+        rfidInput.value = rfidInput.value.replace(/\s+/g, "");
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(runSaveOut, 120);
+      });
+
+      // 2) ENTER: ha a scanner Enterrel zár -> azonnal ment
+      rfidInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          clearTimeout(debounceTimer);
+          runSaveOut();
         }
       });
+
+      // 3) ha elklikkelnek, visszafókuszál
+      rfidInput.addEventListener("blur", () => setTimeout(focusRFID, 50));
     })();
   </script>
-</head>
-
-<body>
-  <div class="app-wrap">
-    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-      <h2 class="m-0">RFID Kimenet</h2>
-    </div>
-
-    <div class="app-card">
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label">RFID kód:</label>
-          <input id="rfid_input" type="text" class="form-control" placeholder="RFID kód">
-        </div>
-
-        <div class="col-12">
-          <button id="rfid_btn" class="btn btn-primary">Mentés</button>
-        </div>
-      </div>
-
-      <hr class="my-4">
-
-      <h4 class="mb-2">Eredmény:</h4>
-      <div id="eredmeny"></div>
-    </div>
-  </div>
-
- 
 </body>
 </html>

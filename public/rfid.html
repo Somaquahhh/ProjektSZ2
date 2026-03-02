@@ -14,43 +14,47 @@
 
   <script>
     (function () {
-      var rfidBtn = document.getElementById("rfid_btn");
-      var rfidInput = document.getElementById("rfid_input");
-      var startTimeInput = document.getElementById("start_time");
-      var eredmenyDiv = document.getElementById("eredmeny");
-  
-      if (!rfidBtn) return;
-  
-      rfidBtn.addEventListener("click", async function (e) {
-        e.preventDefault();
-  
-        var kod = rfidInput.value.trim();
-        if (!kod) {
-          alert("Adj meg RFID kódot!");
-          return;
-        }
-  
-        var start = startTimeInput.value;
-  
+    
+      const rfidInput = document.getElementById("rfid_input");
+      const startTimeInput = document.getElementById("start_time");
+      const eredmenyDiv = document.getElementById("eredmeny");
+    
+      if (!rfidInput) return;
+    
+      let busy = false;
+      let debounceTimer = null;
+      let clearTimer = null;
+    
+      async function runLookup() {
+    
+        const kod = rfidInput.value.trim();
+        if (!kod) return;
+        if (busy) return;
+    
+        busy = true;
+    
+        const start = startTimeInput?.value || "07:50";
+    
         try {
-          var res = await fetch(
+          const res = await fetch(
             `/api/rfid/event?kod=${encodeURIComponent(kod)}&direction=in&start=${encodeURIComponent(start)}`,
             { credentials: "include" }
           );
-  
+    
           if (!res.ok) {
-            var msg = await res.text();
-            eredmenyDiv.innerHTML = `<p class="text-danger">${msg}</p>`;
+            const msg = await res.text();
+            eredmenyDiv.innerHTML =
+              `<p class="text-danger">${msg}</p>`;
             return;
           }
-  
-          var data = await res.json();
-  
-          var statusText =
+    
+          const data = await res.json();
+    
+          const statusText =
             data.status === "late"
               ? `KÉSÉS: ${data.diffMinutes} perc`
               : "Időben érkezett";
-  
+    
           eredmenyDiv.innerHTML = `
             <div class="app-panel p-3">
               <p class="mb-1"><b>Név:</b> ${data.NEV}</p>
@@ -58,22 +62,47 @@
               <p class="mb-1"><b>OM:</b> ${data.OM || "-"}</p>
               <p class="mb-1"><b>Sulikezdés:</b> ${start}</p>
               <p class="mt-2"><b>${statusText}</b></p>
-              <button id="ok_btn" class="btn btn-secondary">OK</button>
             </div>
           `;
-  
-          document.getElementById("ok_btn").onclick = function () {
-            rfidInput.value = "";
+    
+          // input reset (scannerhez)
+          rfidInput.value = "";
+          rfidInput.focus();
+    
+          // ===== IDŐZÍTŐ JAVÍTÁS =====
+          // régi törlés leállítása
+          if (clearTimer) clearTimeout(clearTimer);
+    
+          // új törlés (15 mp után)
+          clearTimer = setTimeout(() => {
             eredmenyDiv.innerHTML = "";
-            rfidInput.focus();
-          };
-  
+            clearTimer = null;
+          }, 15000);
+    
         } catch (err) {
           console.error(err);
-          eredmenyDiv.innerHTML = "<p class='text-danger'>Hiba történt</p>";
+          eredmenyDiv.innerHTML =
+            "<p class='text-danger'>Hiba történt</p>";
+        } finally {
+          busy = false;
+        }
+      }
+    
+      // RFID scanner debounce
+      rfidInput.addEventListener("input", () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(runLookup, 120);
+      });
+    
+      // ha ENTER-t küld a scanner
+      rfidInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          clearTimeout(debounceTimer);
+          runLookup();
         }
       });
-  
+    
     })();
     </script>
 </head>
@@ -88,7 +117,7 @@
       <div class="row g-3">
         <div class="col-12">
           <label class="form-label">RFID kód:</label>
-          <input id="rfid_input" type="text" class="form-control" placeholder="RFID kód">
+          <input id="rfid_input" type="text" class="form-control" placeholder="RFID kód" autocomplete="off" autofocus>
         </div>
 
         <div class="col-12">
