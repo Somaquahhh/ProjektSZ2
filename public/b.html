@@ -506,7 +506,7 @@
             allapot === "ELFOGADVA" ? "badge-elfogadva" :
             allapot === "ELUTASITVA" ? "badge-elutasitva" : "";
           const pdfCell = (allapot === "ELFOGADVA")
-            ? `<button type="button" data-action="pdf" data-id="${escapeHtml(String(r.ID_KIKERO))}">PDF</button>`
+            ? `<button type="button" id="fekk" data-action="pdf" data-id="${escapeHtml(String(r.ID_KIKERO))}">PDF</button>`
             : `<span class="muted">Várakozás...</span>`;
           return `
             <tr>
@@ -546,11 +546,11 @@
             allapot === "UJ" ? "badge-uj" :
             allapot === "ELFOGADVA" ? "badge-elfogadva" :
             allapot === "ELUTASITVA" ? "badge-elutasitva" : "";
-          const previewBtn = `<button type="button" class="btn-mini" data-action="preview" data-id="${escapeHtml(String(r.ID_KIKERO))}">Előnézet</button>`;
+            const previewBtn = `<button  type="button"  class="btn-mini"  data-action="preview"  data-id="${escapeHtml(String(r.ID_KIKERO))} ;">Előnézet</button>`;
           const actionButtons = (allapot === "UJ")
             ? `
-              <button type="button" data-action="elfogad" data-id="${escapeHtml(String(r.ID_KIKERO))}">Elfogad</button>
-              <button type="button" data-action="elutasit" data-id="${escapeHtml(String(r.ID_KIKERO))}">Elutasít</button>
+              <button type="button" id="fekk" data-action="elfogad" data-id="${escapeHtml(String(r.ID_KIKERO))}">Elfogad</button>
+              <button type="button" id="fekk" data-action="elutasit" data-id="${escapeHtml(String(r.ID_KIKERO))}">Elutasít</button>
             `
             : `<span class="muted">Már elbírálva</span>`;
           return `

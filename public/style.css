@@ -1217,4 +1217,10 @@ body.login-page #themeToggle:hover{
     -webkit-backdrop-filter: none !important;
   }
 
-  
+  .btn-mini,
+.btn-mini * {
+  color: black !important;
+}
+#fekk {
+  color: black !important;
+}

@@ -42,7 +42,7 @@
           );
     
           if (!res.ok) {
-            const msg = await res.text();
+            const msg = "A teljes kódot add meg.";
             eredmenyDiv.innerHTML =
               `<p class="text-danger">${msg}</p>`;
             return;
