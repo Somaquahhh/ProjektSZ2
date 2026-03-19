@@ -11,7 +11,7 @@ const DEBUG_STD13 =
   process.env.NODE_ENV !== "production" || process.env.DEBUG_STD13 === "1";
 
 const app = express();
-const port = 9021;
+const port = 3000;
 
 app.set("trust proxy", true);
 
@@ -406,34 +406,70 @@ app.post("/api/kikero", authMiddleware, (req, res) => {
 });
 
 // KIKÉRŐK tanárnak (csak a sajátjai)
+// KIKÉRŐK tanárnak / bossnak
 app.get("/api/kikero/tanar", authMiddleware, (req, res) => {
+
+  const role = getRole(req);
   const idTanar = req.session.ID_USER;
 
-  const sql = `
-    SELECT
-      k.ID_KIKERO,
-      k.ID_KERO,
-      u.NEV AS KULDO_NEV,
-      k.OK,
-      k.RESZLETEK,
-      k.NAP,
-      k.LETREHOZVA,
-      k.ALLAPOT
-    FROM kikero k
-    JOIN users u ON u.ID_USER = k.ID_KERO
-    WHERE k.ID_TANAR = ?
-    ORDER BY k.LETREHOZVA DESC
-    LIMIT 200
-  `;
+  let sql;
+  let params = [];
 
-  DB.query(sql, [idTanar], (json_data, error) => {
+  // Boss minden kikérőt lát
+  if (role === "Boss") {
+
+    sql = `
+      SELECT
+        k.ID_KIKERO,
+        k.ID_KERO,
+        u.NEV AS KULDO_NEV,
+        t.NEV AS TANAR_NEV,
+        k.OK,
+        k.RESZLETEK,
+        k.NAP,
+        k.LETREHOZVA,
+        k.ALLAPOT
+      FROM kikero k
+      JOIN users u ON u.ID_USER = k.ID_KERO
+      JOIN users t ON t.ID_USER = k.ID_TANAR
+      ORDER BY k.LETREHOZVA DESC
+      LIMIT 200
+    `;
+
+  } 
+  else {
+
+    // tanár csak a saját kikérőit látja
+    sql = `
+      SELECT
+        k.ID_KIKERO,
+        k.ID_KERO,
+        u.NEV AS KULDO_NEV,
+        k.OK,
+        k.RESZLETEK,
+        k.NAP,
+        k.LETREHOZVA,
+        k.ALLAPOT
+      FROM kikero k
+      JOIN users u ON u.ID_USER = k.ID_KERO
+      WHERE k.ID_TANAR = ?
+      ORDER BY k.LETREHOZVA DESC
+      LIMIT 200
+    `;
+
+    params = [idTanar];
+  }
+
+  DB.query(sql, params, (json_data, error) => {
     if (error) return res.status(500).json({ error: "DB hiba" });
+
     try {
       res.json(JSON.parse(json_data));
     } catch {
       res.status(500).json({ error: "Hibás JSON válasz" });
     }
   });
+
 });
 
 // KIKÉRŐ státusz (tanár dönt: elfogad / elutasít)
