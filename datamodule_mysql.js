@@ -7,9 +7,9 @@ const DEBUG_SQL = process.env.DEBUG_SQL === "1";
 
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "10.2.0.11 ",
+  host: "193.227.198.214",
   user: "gaal.oliver",
-  port: "3306",
+  port: "9406",
   password: "Csany0379",
   database: "studio13_csany_zeg",
 

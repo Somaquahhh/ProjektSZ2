@@ -11,7 +11,7 @@ const DEBUG_STD13 =
   process.env.NODE_ENV !== "production" || process.env.DEBUG_STD13 === "1";
 
 const app = express();
-const port = 9021;
+const port = 3000;
 
 app.set("trust proxy", true);
 
@@ -475,6 +475,7 @@ app.get("/api/kikero/tanar", authMiddleware, (req, res) => {
 // KIKÉRŐ státusz (tanár dönt: elfogad / elutasít)
 app.post("/api/kikero/allapot", authMiddleware, (req, res) => {
   const idTanar = req.session.ID_USER;
+  const role = getRole(req);
   const { idKikero, allapot, megjegyzes } = req.body || {};
 
   const allowed = ["ELFOGADVA", "ELUTASITVA"];
@@ -482,27 +483,43 @@ app.post("/api/kikero/allapot", authMiddleware, (req, res) => {
     return res.status(400).json({ error: "Hibás adatok" });
   }
 
-  const sql = `
-    UPDATE kikero
-    SET ALLAPOT = ?, DONTES_IDO = NOW(), DONTES_MEGJEGYZES = ?
-    WHERE ID_KIKERO = ? AND ID_TANAR = ? AND ALLAPOT = 'UJ'
-    LIMIT 1
-  `;
+  // Boss bármely kikérőt elbírálhatja, tanár csak a sajátját
+  const sql = role === "Boss"
+    ? `UPDATE kikero
+       SET ALLAPOT = ?, DONTES_IDO = NOW(), DONTES_MEGJEGYZES = ?
+       WHERE ID_KIKERO = ? AND ALLAPOT = 'UJ'
+       LIMIT 1`
+    : `UPDATE kikero
+       SET ALLAPOT = ?, DONTES_IDO = NOW(), DONTES_MEGJEGYZES = ?
+       WHERE ID_KIKERO = ? AND ID_TANAR = ? AND ALLAPOT = 'UJ'
+       LIMIT 1`;
 
-  DB.query(sql, [allapot, megjegyzes || null, idKikero, idTanar], (json_data, error) => {
-    if (error) return res.status(500).json({ error: "DB hiba" });
+  const params = role === "Boss"
+    ? [allapot, megjegyzes || null, idKikero]
+    : [allapot, megjegyzes || null, idKikero, idTanar];
 
-    try {
-      const data = JSON.parse(json_data);
-      if (!data || data.count === 0) {
-        return res.status(409).json({
-          error: "Ez a kikérő már el van bírálva (vagy nem a tied).",
-        });
-      }
-    } catch {}
-
-    res.json({ ok: true });
-  });
+    DB.query(sql, params, (json_data, error) => {
+      if (error) return res.status(500).json({ error: "DB hiba" });
+  
+      try {
+        const data = JSON.parse(json_data);
+        if (!data || data.count === 0) {
+          return res.status(409).json({
+            error: "Ez a kikérő már el van bírálva (vagy nem a tied).",
+          });
+        }
+      } catch {}
+  
+      // ÚJ: audit log – ki és mit döntött
+      auditLog(req, {
+        muvelet: "DONTES",
+        objektum: "kikero",
+        objektumId: idKikero,
+        reszletek: `${allapot}${megjegyzes ? " – " + megjegyzes : ""}`,
+      });
+  
+      res.json({ ok: true });
+    });
 });
 
 // KIKÉRŐK diák saját listája
