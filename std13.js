@@ -11,11 +11,11 @@ const DEBUG_STD13 =
   process.env.NODE_ENV !== "production" || process.env.DEBUG_STD13 === "1";
 
 const app = express();
-const port = 3000;
+const port = 9021;
 
 app.set("trust proxy", true);
 
-// JSON + form body-k fogadása
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -60,7 +60,7 @@ const ROLE_LEVEL = {
 };
 
 // Minimum role egyes HTML oldalakhoz
-// (ha nincs benne a map-ben, akkor nem tiltjuk)
+
 const PAGE_MIN_ROLE = {
   "/index.html": "Students",
   "/sajat.html": "Students",
@@ -139,7 +139,7 @@ function auditLog(
     const actorId = req.session?.ID_USER ?? null;
     const actorNev = req.session?.NEV ?? null;
 
-    // IP kinyerés (proxy mögött is)
+   
     const ip =
       (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
       req.ip ||
@@ -171,7 +171,7 @@ function auditLog(
 }
 
 // =========================================================
-// 5) STATIKUSOK + CACHE tiltás + HTML beléptetés/role guard
+// 5) STATIKUSOK  + HTML beléptetés/role guard
 // =========================================================
 
 // Publikus statikus fájlok külön route-okon
@@ -182,7 +182,7 @@ app.use(
   express.static(path.join(__dirname, "public/common_studio13.js"))
 );
 
-// Cache tiltás (hogy mindig friss legyen a HTML/JS/CSS)
+
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
   res.setHeader("Pragma", "no-cache");
@@ -288,7 +288,7 @@ app.get("/index", authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// API: aktuális user szerep (gyors check UI-nak)
+
 app.get("/api/me", (req, res) => {
   if (!req.session?.ID_USER)
     return res.status(401).json({ error: "not logged in" });
@@ -316,10 +316,10 @@ app.post("/logout", (req, res) => {
 });
 
 // =========================================================
-// 7) “VEGYES” API-k (általános listák / teszt jellegű route-ok)
+// 7) 
 // =========================================================
 
-// példa: users lista (neve alapján "asd" -> érdemes lenne átnevezni)
+// példa: users lista 
 app.post("/asd", authMiddleware, (req, res) => {
   const sql = `
     SELECT OM, NEV, EMAIL, CSOPORT
@@ -510,7 +510,7 @@ app.post("/api/kikero/allapot", authMiddleware, (req, res) => {
         }
       } catch {}
   
-      // ÚJ: audit log – ki és mit döntött
+      //  audit log – ki és mit döntött
       auditLog(req, {
         muvelet: "DONTES",
         objektum: "kikero",
@@ -559,7 +559,7 @@ app.get("/api/kikero/diak", authMiddleware, (req, res) => {
 // 9) RFID API (keresés + esemény mentés kibe táblába)
 // =========================================================
 
-// RFID -> user lookup
+// RFID 
 app.get("/api/rfid", authMiddleware, (req, res) => {
   const kod = (req.query.kod || "").trim();
   if (!kod) return res.status(400).json({ error: "Hiányzó kod paraméter" });
@@ -635,7 +635,7 @@ app.get("/api/rfid/event", authMiddleware, (req, res) => {
     const user = data.rows[0];
     const now = new Date();
 
-    // Műszak kezdete / vége a mai napra
+    // kezdet / vég a mai napra
     const shiftStart = new Date(now);
     shiftStart.setHours(st.hh, st.mm, 0, 0);
 
@@ -644,7 +644,7 @@ app.get("/api/rfid/event", authMiddleware, (req, res) => {
 
     const graceMs = graceHours * 60 * 60 * 1000;
 
-    // status: ok | late | early_leave
+
     let status = "ok";
     let diffMs = 0;
 

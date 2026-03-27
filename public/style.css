@@ -24,7 +24,7 @@ input { font-family: Verdana, Tahoma; }
 }
 
 #szoveg_csoport {
-  position: absolute;       /* függetlenedik a navbar flexétől */
+  position: absolute;       
   left: 50%;                /* vízszintesen középen */
   top: 50%;                 /* függőlegesen a navbar közepén */
   transform: translate(-50%, -50%); /* pontos középre igazítás */
@@ -248,8 +248,8 @@ button:hover{
 
 /* ===== ALAP (SÖTÉT) ===== */
 :root{
-  --bg-main: #0b1220;          /* extra sötét kék */
-  --bg-overlay: rgba(9, 15, 30, 0.78); /* kép sötétítő overlay */
+  --bg-main: #0b1220;          
+  --bg-overlay: rgba(9, 15, 30, 0.78); 
   --panel: rgba(15, 23, 42, 0.58);
   --card: rgba(17, 28, 52, 0.52);
 
@@ -455,8 +455,7 @@ body{
   
 
 /* =========================================================
-   KONTRASZT + OLVASHATÓSÁG PATCH (SÖTÉT TÉMÁHOZ)
-   Tedd a style.css LEGALJÁRA
+   KONTRASZT + OLVASHATÓSÁG  (SÖTÉT TÉMÁHOZ)
    ========================================================= */
 
 /* 1) Oldalsó kártyák legyenek “masszívabbak” */
@@ -523,7 +522,7 @@ body:not(.theme-light) table td{
   border-color: rgba(255,255,255,0.12) !important;
 }
 
-/* 6) MODAL / MEGERŐSÍTÉS ablak (általános + jQuery UI) */
+/* 6) MODAL / MEGERŐSÍTÉS ablak  */
 .modal,
 .modal-dialog,
 .modal-content,
@@ -539,7 +538,7 @@ body:not(.theme-light) .modal-content{
   box-shadow: 0 22px 80px rgba(0,0,0,0.70) !important;
 }
 
-/* jQuery UI titlebar (Megerősítés fejléc) */
+
 body:not(.theme-light) .ui-dialog .ui-dialog-titlebar{
   background: rgba(9, 16, 32, 0.96) !important;
   border: 0 !important;
@@ -607,17 +606,17 @@ body:not(.theme-light) table th{
   border-bottom: 1px solid rgba(15,23,42,0.12) !important;
 }
 
-/* cellák */
+
 body:not(.theme-light) table td{
   border-bottom: 1px solid rgba(15,23,42,0.08) !important;
 }
 
-/* zebra csíkozás */
+
 body:not(.theme-light) table tbody tr:nth-child(even){
   background: rgba(15,23,42,0.03) !important;
 }
 
-/* sor hover */
+
 body:not(.theme-light) table tbody tr:hover{
   background: rgba(37,99,235,0.08) !important;
 }
@@ -681,7 +680,7 @@ body:not(.theme-light) table tbody tr:hover{
    HTML-hez igazítva (app-card)
    ========================================================= */
 
-/* csak a login oldalon (biztonságosabb) */
+
 body.login-page .app-card{
   background: rgba(9, 16, 32, 0.88) !important;   /* tömör sötét */
   border: 1px solid rgba(255,255,255,0.20) !important;
@@ -787,7 +786,7 @@ body.login-page #themeToggle:hover{
     font-size: 1rem;
   }
   
-  /* gomb legyen “komolyabb” */
+
   body.login-page .btn-primary{
     padding: 14px !important;
     font-size: 1.05rem;
@@ -815,10 +814,7 @@ body.login-page #themeToggle:hover{
   }
   
 
-  /* =========================
-   RESPONSIVE PATCH (csak main)
-   Tedd a style.css legaljára
-   ========================= */
+
 
 /* 1) Layout: ha kisebb a képernyő, legyen 1 oszlop */
 @media (max-width: 1200px){
@@ -897,7 +893,7 @@ body.login-page #themeToggle:hover{
   word-break: break-word;
 }
 
-/* b.html (kikérő kezelő) izolált stílusok */
+/* b.html (kikérő kezelő) */
     #bPageRoot .kartya{
       border-radius: var(--radius);
       padding: 12px;
@@ -1029,7 +1025,7 @@ body.login-page #themeToggle:hover{
       font-size: 10pt;
       color: var(--pdf-muted);
     }
-    /* Tanári státusz cella: badge + gomb egymás mellett */
+ 
     #bPageRoot .status-wrap{
       display:flex;
       gap: 8px;
@@ -1056,10 +1052,7 @@ body.login-page #themeToggle:hover{
     }
   
 
-/* === b.html TANÁRI ELŐNÉZET MODAL (Bootstrap a body-ba átrakja) ===
-   A JS a #tanarPreviewModal-t document.body alá mozgatja, ezért a #bPageRoot scope itt nem érvényes.
-   Ezek a szabályok csak erre a modalra vonatkoznak.
-*/
+
 #tanarPreviewModal #tanarKilepoDokumentum,
 #tanarPreviewModal #tanarKilepoDokumentum *{
   color: #212529 !important;
@@ -1098,7 +1091,7 @@ body.login-page #themeToggle:hover{
 
 
 /* =========================
-   KEZDŐOLDAL – ÚJ LAYOUT
+   KEZDŐOLDAL
    ========================= */
 
    .home-layout{
@@ -1107,7 +1100,7 @@ body.login-page #themeToggle:hover{
     gap: 22px;
   }
   
-  /* ===== HERO (bemutatás) ===== */
+ 
   
   .home-hero{
     padding: 28px;
@@ -1120,7 +1113,7 @@ body.login-page #themeToggle:hover{
     border: 1px solid rgba(255,255,255,0.18);
     box-shadow: 0 25px 60px rgba(0,0,0,0.55);
 
-    min-height: 320px;   /* <-- EZ A LÉNYEG */
+    min-height: 320px;   
   }
   
   .hero-title{
@@ -1165,7 +1158,7 @@ body.login-page #themeToggle:hover{
     margin-bottom: 16px;
   }
   
-  /* Kulcs-érték sor */
+ 
   
   .kv-row{
     display: flex;

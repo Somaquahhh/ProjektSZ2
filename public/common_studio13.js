@@ -122,7 +122,7 @@ function menu_generator() {
 }
 
 
-/* ------- nem kell sql injection ! tessék szépen "kieszképelni" a user inputot! */
+
 function strE(s) {
   return s
     .replaceAll("'", "")
@@ -133,7 +133,6 @@ function strE(s) {
 }
 
 
-/* length kar. hosszú random stringet generál */
 function makeid(length) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -244,7 +243,7 @@ function ajax_get(urlsor, hova, tipus, aszinkron) {
         }
 
 
-        // inline script
+        
        // inline script (MINDIG fusson, mert AJAX betöltésnél ez inicializálja az oldalt)
       const code = this.textContent || "";
       if (!code.trim()) return;
@@ -291,7 +290,7 @@ function ajax_post(urlsor, tipus) {
 }
 
 
-/* Toast üzenet */
+
 function mySend(ops) {
   var defOps = { text: "", tip: "success", mp: 5 };
   ops = $.extend({}, defOps, ops);
@@ -324,7 +323,7 @@ function mySend(ops) {
 }
 
 
-/* kérdés ablak */
+
 function myQuestion(ops) {
   var id = "myQuestion";
   var old = document.getElementById(id);
@@ -384,7 +383,7 @@ function buildQuickActions() {
   try {
     current = (sessionStorage.getItem("last_ajax_page") || "").toLowerCase();
   } catch {}
-  // ha nincs, akkor a normál path
+ 
   if (!current) current = (location.pathname.split("/").pop() || "").toLowerCase();
 
 
@@ -515,14 +514,14 @@ async function fillSidebarsFromSession() {
       if (elOm) elOm.textContent = user.OM || "-";
 
 
-      // login_ts beállítás, ha még nincs
+      
       if (!localStorage.getItem("login_ts")) {
         localStorage.setItem("login_ts", String(Date.now()));
       }
 
 
       // Session labelből csinálunk "Bejelentkezve óta"-t
-      if (elAgeLabel) elAgeLabel.textContent = "Bejelentkezve óta";
+      if (elAgeLabel) elAgeLabel.textContent = "Bejelentkezés óta";
 
 
       startLoginTimer();
@@ -625,7 +624,7 @@ function ensureThemeToggleButton() {
 
 
   } catch (e) {
-    // no-op
+    
   }
 })();
 

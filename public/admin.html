@@ -28,7 +28,7 @@
         const r = await fetch("/api/me", { credentials:"include" });
         if (!r.ok) { location.href="/login.html"; return false; }
         const me = await r.json();
-        if ((me.role || "") !== "Boss") { showMsg("Nincs jogosultságod bro 😅", false); return false; }
+        if ((me.role || "") !== "Boss") { showMsg("Nincs jogosultságod", false); return false; }
         return true;
       }
     

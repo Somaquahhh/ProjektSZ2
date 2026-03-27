@@ -69,11 +69,11 @@
           rfidInput.value = "";
           rfidInput.focus();
     
-          // ===== IDŐZÍTŐ JAVÍTÁS =====
-          // régi törlés leállítása
+          
+          
           if (clearTimer) clearTimeout(clearTimer);
     
-          // új törlés (15 mp után)
+          //  törlés (15 mp után)
           clearTimer = setTimeout(() => {
             eredmenyDiv.innerHTML = "";
             clearTimer = null;
@@ -88,13 +88,13 @@
         }
       }
     
-      // RFID scanner debounce
+      
       rfidInput.addEventListener("input", () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(runLookup, 120);
       });
     
-      // ha ENTER-t küld a scanner
+      
       rfidInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();

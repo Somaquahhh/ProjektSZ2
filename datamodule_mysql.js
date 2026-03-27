@@ -7,9 +7,9 @@ const DEBUG_SQL = process.env.DEBUG_SQL === "1";
 
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "193.227.198.214",
+  host: "10.2.0.11",
   user: "gaal.oliver",
-  port: "9406",
+  port: "3306",
   password: "Csany0379",
   database: "studio13_csany_zeg",
 
@@ -28,7 +28,7 @@ function logToDb(p0, p1, sql, jsText) {
 
 const DB = {
   query(sql, params, callback) {
-    // params sok helyen üres tömb → biztos fallback
+    
     const p = Array.isArray(params) ? params : [];
     const p0 = p.length > 0 && p[0] != null ? String(p[0]) : "";
     const p1 = p.length > 1 && p[1] != null ? String(p[1]) : "";
