@@ -1,6 +1,5 @@
-// =========================================================
-// 0) ALAPOK: importok, app init, body parser, DB
-// =========================================================
+//  ALAPOK: importok, app init, body parser, DB
+
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
@@ -19,9 +18,9 @@ app.set("trust proxy", true);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// =========================================================
-// 1) SESSION: bejelentkezés állapotának tárolása sütiben
-// =========================================================
+
+// SESSION: bejelentkezés állapotának tárolása sütiben
+
 app.use(
   session({
     key: "user_sid",
@@ -35,9 +34,9 @@ app.use(
   })
 );
 
-// =========================================================
-// 2) SZEREPKÖR / JOGOSULTSÁG: role normalizálás + oldalak védése
-// =========================================================
+
+// SZEREPKÖR / JOGOSULTSÁG: role normalizálás + oldalak védése
+
 
 // Role-ok egységesítése (Bosses -> Boss, "Teachers;" -> "Teachers", stb.)
 function normalizeRole(role) {
@@ -104,13 +103,11 @@ function guardHtmlByRole(req, res, next) {
   next();
 }
 
-// =========================================================
-// 3) AUTH / ADMIN middleware-k (API vs HTML viselkedés)
-// =========================================================
 
-// Bejelentkezés kell:
-// - /api/* -> 401 JSON
-// - HTML -> login redirect
+//AUTH / ADMIN middleware-k (API vs HTML viselkedés)
+
+
+
 function authMiddleware(req, res, next) {
   if (req.session && req.session.ID_USER) return next();
 
@@ -128,9 +125,9 @@ function requireBoss(req, res, next) {
   return res.status(403).json({ error: "Admin jogosultság szükséges" });
 }
 
-// =========================================================
-// 4) AUDIT LOG: műveletek naplózása naplo_audit táblába
-// =========================================================
+
+//  AUDIT LOG: műveletek naplózása naplo_audit táblába
+
 function auditLog(
   req,
   { muvelet, objektum, objektumId = null, reszletek = null }
@@ -170,9 +167,9 @@ function auditLog(
   }
 }
 
-// =========================================================
-// 5) STATIKUSOK  + HTML beléptetés/role guard
-// =========================================================
+
+//  STATIKUSOK  + HTML beléptetés/role guard
+
 
 // Publikus statikus fájlok külön route-okon
 app.use("/image", express.static(path.join(__dirname, "public/image")));
@@ -206,9 +203,9 @@ app.use((req, res, next) => {
 app.use(guardHtmlByRole);
 app.use(express.static(path.join(__dirname, "public")));
 
-// =========================================================
-// 6) LOGIN / SESSION / ROOT (belépés, kijelentkezés, alap route-ok)
-// =========================================================
+
+// LOGIN / SESSION / ROOT (belépés, kijelentkezés, alap route-ok)
+
 
 // LOGIN (email vagy név + jelszó)
 app.post("/login", (req, res) => {
@@ -315,9 +312,7 @@ app.post("/logout", (req, res) => {
   });
 });
 
-// =========================================================
-// 7) 
-// =========================================================
+
 
 // példa: users lista 
 app.post("/asd", authMiddleware, (req, res) => {
@@ -355,9 +350,9 @@ app.get("/api/tanarok", authMiddleware, (req, res) => {
   });
 });
 
-// =========================================================
-// 8) KIKÉRŐ API (diák kér -> tanár elbírál -> diák visszanéz)
-// =========================================================
+
+// KIKÉRŐ API (diák kér -> tanár elbírál -> diák visszanéz)
+
 
 // KIKÉRŐ létrehozás (diák)
 app.post("/api/kikero", authMiddleware, (req, res) => {
@@ -555,9 +550,9 @@ app.get("/api/kikero/diak", authMiddleware, (req, res) => {
   });
 });
 
-// =========================================================
-// 9) RFID API (keresés + esemény mentés kibe táblába)
-// =========================================================
+
+//RFID API (keresés + esemény mentés kibe táblába)
+
 
 // RFID 
 app.get("/api/rfid", authMiddleware, (req, res) => {
@@ -688,9 +683,9 @@ app.get("/api/rfid/event", authMiddleware, (req, res) => {
   });
 });
 
-// =========================================================
-// 10) KIBE / KÉSÉSEK API (saját / összes / egyszerű lista)
-// =========================================================
+
+//  KIBE / KÉSÉSEK API (saját / összes / egyszerű lista)
+
 
 // Saját kibe lista
 app.get("/api/my/kibe", authMiddleware, (req, res) => {
@@ -766,9 +761,9 @@ app.post("/api/kibe_simple", authMiddleware, (req, res) => {
   );
 });
 
-// =========================================================
-// 11) ADMIN API (Boss): audit / kibe / kikero / users CRUD
-// =========================================================
+
+//  ADMIN API (Boss): audit / kibe / kikero / users CRUD
+
 
 // AUDIT lista (Boss)
 app.get("/api/admin/audit", authMiddleware, requireBoss, (req, res) => {
@@ -896,7 +891,7 @@ app.delete("/api/admin/kikero/:id", authMiddleware, requireBoss, (req, res) => {
   });
 });
 
-// USERS create (Boss)
+// USERS létrehozás (Boss)
 app.post("/api/admin/users", authMiddleware, requireBoss, (req, res) => {
   const { login, email, nev, om, rfid, password, csoport } = req.body || {};
 
@@ -1058,9 +1053,9 @@ app.delete("/api/admin/users/:id", authMiddleware, requireBoss, (req, res) => {
   });
 });
 
-// =========================================================
-// 12) START
-// =========================================================
+
+// indítás
+
 app.listen(port, () => {
   if (DEBUG_STD13) console.log(`std13 app listening at http://localhost:${port}`);
 });
