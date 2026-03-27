@@ -81,12 +81,6 @@ var menü_json = [{
   "tip": 0,
   minRole: "Boss"
 },{
-  "text": "Fejlesztői dokumentáció",
-  "ikon": "",
-  "url": "devdocs.html",
-  "tip": 0,
-  minRole: "Boss"
-}, {
   "text": "Admin panel",
   "ikon": "",
   "url": "admin.html",
